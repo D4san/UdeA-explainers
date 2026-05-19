@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Solucion computacional de solidos elasticos</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
+        svg: { fontCache: "global" }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  </head>
+  <body>
+    <header class="hero">
+      <p class="course">Mecanica de Medios Continuos</p>
+      <h1>Solucion computacional de solidos elasticos</h1>
+      <p class="dek">
+        Como una ecuacion de equilibrio se convierte en un algoritmo: propongo desplazamientos,
+        calculo deformaciones, traduzco a esfuerzos, mido el residuo y corrijo la malla.
+      </p>
+    </header>
+
+    <main>
+      <section class="section-grid">
+        <aside class="side-note">
+          <strong>Idea central.</strong>
+          El computador no reemplaza la fisica: la obliga a escribirse localmente en una malla.
+        </aside>
+        <article>
+          <h2>El problema que queremos hacer computable</h2>
+          <p>
+            Imaginemos un bloque elastico bidimensional bajo gravedad. Parte de su frontera esta
+            apoyada: no se puede mover libremente. Otra parte esta libre: no deberia tener traccion
+            externa. El campo desconocido es el desplazamiento
+          </p>
+          <div class="equation">$$\mathbf u(x,y)=(u_x(x,y),u_y(x,y)).$$</div>
+          <p>
+            Resolver el solido significa encontrar el campo $\mathbf u$ que hace compatible tres
+            cosas: la geometria de la deformacion, la ley constitutiva del material y el equilibrio
+            de fuerzas en el interior y en la frontera.
+          </p>
+          <p>
+            La pregunta computacional es muy concreta:
+          </p>
+          <blockquote>
+            Si propongo un campo de desplazamientos cualquiera, ¿como se si todavia le falta moverse
+            para llegar al equilibrio?
+          </blockquote>
+        </article>
+      </section>
+
+      <section class="image-band">
+        <h2>Dos mapas de la clase</h2>
+        <div class="image-grid">
+          <figure>
+            <img src="assets/infografia_algoritmo_elastostatica_fronteras.png" alt="Algoritmo de relajacion elastostatica con residuo interior y frontera" />
+            <figcaption>
+              El ciclo completo: desplazamientos, deformacion, esfuerzo, residuo y correccion.
+              La frontera libre usa otro residuo: $\boldsymbol\sigma\cdot\mathbf n-\mathbf P$.
+            </figcaption>
+          </figure>
+          <figure>
+            <img src="assets/infografia_discretizacion_computacional.png" alt="Discretizacion computacional del continuo a una malla" />
+            <figcaption>
+              La discretizacion no cambia la fisica: cambia derivadas por diferencias entre nodos.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="interactive-shell">
+        <div class="interactive-copy">
+          <h2>Una malla que intenta encontrar equilibrio</h2>
+          <p>
+            Cambia la rigidez, la razon de Poisson y el numero de iteraciones. La figura no pretende
+            ser un solucionador profesional; es una maqueta explicativa para ver que se actualiza en
+            cada etapa del algoritmo.
+          </p>
+        </div>
+
+        <div class="controls" aria-label="Controles de la simulacion">
+          <label>
+            Rigidez $E$
+            <input id="stiffness" type="range" min="0.6" max="6" step="0.1" value="2.4" />
+            <span id="stiffnessValue">2.4</span>
+          </label>
+          <label>
+            Poisson $\nu$
+            <input id="poisson" type="range" min="0" max="0.46" step="0.01" value="0.28" />
+            <span id="poissonValue">0.28</span>
+          </label>
+          <label>
+            Iteraciones
+            <input id="iterations" type="range" min="0" max="90" step="1" value="28" />
+            <span id="iterationsValue">28</span>
+          </label>
+          <button id="resetButton" type="button">Restablecer</button>
+        </div>
+
+        <div class="stage-tabs" id="stageTabs" aria-label="Etapas del algoritmo">
+          <button type="button" data-stage="u" class="active">u</button>
+          <button type="button" data-stage="strain">deformacion</button>
+          <button type="button" data-stage="stress">esfuerzo</button>
+          <button type="button" data-stage="residual">residuo</button>
+          <button type="button" data-stage="boundary">frontera</button>
+        </div>
+
+        <canvas id="solidCanvas" width="1180" height="640" aria-label="Simulacion didactica de una malla elastica"></canvas>
+
+        <div class="readout">
+          <div>
+            <span class="label">Escala elastica</span>
+            <strong id="scaleReadout">D = 2.16</strong>
+          </div>
+          <div>
+            <span class="label">Residuo relativo</span>
+            <strong id="residualReadout">chi = 0.21</strong>
+          </div>
+          <div>
+            <span class="label">Lectura</span>
+            <strong id="stageReadout">desplazamiento propuesto</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-grid">
+        <aside class="side-note">
+          <strong>Cadena de traduccion.</strong>
+          Cada flecha cambia el lenguaje: geometria, material, equilibrio, correccion.
+        </aside>
+        <article>
+          <h2>Del campo continuo al residuo</h2>
+          <p>
+            El primer paso es puramente geometrico. Si $\mathbf u$ cambia entre puntos vecinos, hay
+            deformacion:
+          </p>
+          <div class="equation">$$u_{ij}=\frac12(\nabla_i u_j+\nabla_j u_i).$$</div>
+          <p>
+            Luego entra la ley constitutiva. Para elasticidad lineal isotropa:
+          </p>
+          <div class="equation">$$\sigma_{ij}=2\mu u_{ij}+\lambda\delta_{ij}u_{kk}.$$</div>
+          <p>
+            El equilibrio no dice que el esfuerzo sea cero. Dice que la divergencia del esfuerzo
+            debe balancear la fuerza de cuerpo:
+          </p>
+          <div class="equation">$$f_i+\nabla_j\sigma_{ij}=0.$$</div>
+          <p>
+            Por eso definimos el residuo de equilibrio:
+          </p>
+          <div class="equation highlight">$$f_i^\*=f_i+\nabla_j\sigma_{ij}.$$</div>
+          <p>
+            Si $\mathbf f^\*=0$, el campo propuesto ya esta en equilibrio. Si no, ese residuo
+            indica localmente hacia donde debe corregirse el desplazamiento.
+          </p>
+        </article>
+      </section>
+
+      <section class="steps">
+        <h2>El algoritmo como lectura fisica</h2>
+        <div class="step-grid">
+          <div class="step-card blue">
+            <span>1</span>
+            <h3>Propongo $\mathbf u$</h3>
+            <p>Guardo dos arreglos: `UX[i,j]` y `UY[i,j]`.</p>
+          </div>
+          <div class="step-card green">
+            <span>2</span>
+            <h3>Calculo $u_{ij}$</h3>
+            <p>Las derivadas se aproximan usando vecinos de la malla.</p>
+          </div>
+          <div class="step-card orange">
+            <span>3</span>
+            <h3>Calculo $\sigma_{ij}$</h3>
+            <p>Hooke traduce deformacion en esfuerzos internos.</p>
+          </div>
+          <div class="step-card red">
+            <span>4</span>
+            <h3>Mido $\mathbf f^\*$</h3>
+            <p>El residuo dice cuanto falta para equilibrar cada nodo.</p>
+          </div>
+          <div class="step-card blue">
+            <span>5</span>
+            <h3>Corrijo $\mathbf u$</h3>
+            <p>Actualizo con un paso pequeno: $\mathbf u_{\rm nuevo}=\mathbf u_{\rm viejo}+\epsilon\mathbf f^\*$.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="two-column">
+        <div>
+          <h2>Que hace la malla</h2>
+          <p>
+            En papel, $\mathbf u(x,y)$ existe en infinitos puntos. En el computador queda guardado
+            solo en nodos:
+          </p>
+          <div class="equation">$$\mathbf u(x,y)\longrightarrow \mathbf u[i,j].$$</div>
+          <p>
+            Las derivadas se vuelven diferencias finitas. Por ejemplo:
+          </p>
+          <div class="equation small">$$\partial_xu_x\approx
+          \frac{u_x[i+1,j]-u_x[i-1,j]}{2\Delta x}.$$</div>
+          <p>
+            Esta aproximacion convierte una ecuacion diferencial en operaciones locales con vecinos.
+          </p>
+        </div>
+        <div>
+          <h2>Que hacen las fronteras</h2>
+          <p>
+            En el interior usamos el residuo de volumen:
+          </p>
+          <div class="equation small">$$\mathbf f^\*=\mathbf f+\nabla\cdot\boldsymbol\sigma.$$</div>
+          <p>
+            En una frontera libre no fijamos $\mathbf u$; pedimos que la traccion sea la prescrita:
+          </p>
+          <div class="equation small">$$\boldsymbol\sigma\cdot\mathbf n=\mathbf P.$$</div>
+          <p>
+            Por eso aparece otro error:
+          </p>
+          <div class="equation highlight small">$$\mathbf r_{\rm borde}=\boldsymbol\sigma\cdot\mathbf n-\mathbf P.$$</div>
+        </div>
+      </section>
+
+      <section class="section-grid">
+        <aside class="side-note">
+          <strong>Lectura del ejemplo.</strong>
+          A mayor $E$, menor deformacion. A mayor $\nu$, mas visible se vuelve el abultamiento
+          lateral.
+        </aside>
+        <article>
+          <h2>Asentamiento gravitacional como caso de prueba</h2>
+          <p>
+            En la nota de clase aparece una solucion aproximada sin cizalla para comparar la
+            simulacion. La escala
+          </p>
+          <div class="equation">$$D=\frac{E}{(1-\nu^2)\rho_0g_0}$$</div>
+          <p>
+            compara rigidez elastica con peso propio. Si $D$ es grande, el cuerpo casi no se
+            deforma. Si $D$ es comparable con el tamano del bloque, la deformacion se vuelve
+            visible.
+          </p>
+          <p>
+            La interaccion usa esa misma intuicion: la gravedad empuja hacia abajo, la rigidez se
+            opone, y la razon de Poisson controla cuanto desplazamiento lateral acompana al
+            asentamiento vertical.
+          </p>
+        </article>
+      </section>
+
+      <section class="checks">
+        <h2>Preguntas para cerrar</h2>
+        <ol>
+          <li>Por que conocer $\mathbf u$ no basta para saber si el solido esta en equilibrio?</li>
+          <li>En que paso entra la geometria y en que paso entra la ley del material?</li>
+          <li>Por que el residuo $\mathbf f^\*$ puede interpretarse como una medida local de error?</li>
+          <li>Que diferencia hay entre corregir un nodo interior y corregir una frontera libre?</li>
+        </ol>
+      </section>
+
+      <footer>
+        <p>
+          Fuentes: nota `Lautrup 11 - Asentamiento gravitacional 2D, simulacion corta`, infografias
+          locales del taller MCON y Lautrup, <em>Physics of Continuous Matter</em>, capitulo 11.
+        </p>
+      </footer>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

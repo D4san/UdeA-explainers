@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Funcion de corriente alrededor de un cilindro</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
+        svg: { fontCache: "global" }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  </head>
+  <body>
+    <header class="article-header">
+      <p class="course">Mecanica de Medios Continuos</p>
+      <h1>Funcion de corriente: construir un flujo que rodea un cilindro</h1>
+      <p class="dek">
+        Una explicacion paso a paso de por que la frontera circular debe ser una linea de corriente,
+        como aparece el termino correctivo y que significa que el flujo sea incompresible e irrotacional.
+      </p>
+    </header>
+
+    <main>
+      <section class="section-grid">
+        <aside class="side-note">
+          <strong>Promesa.</strong>
+          Al final podras leer la formula
+          $\psi=U(r-a^2/r)\sin\phi$ como una construccion fisica, no como una funcion adivinada.
+        </aside>
+        <article>
+          <h2>La pregunta es geometrica</h2>
+          <p>
+            Queremos construir un campo de velocidades que venga desde lejos, encuentre un
+            obstaculo circular y no atraviese su pared. La pregunta es que forma debe tener el
+            flujo para respetar simultaneamente continuidad, irrotacionalidad y la frontera solida.
+          </p>
+          <p>
+            La idea central es sencilla: si una superficie solida no puede ser atravesada por el
+            fluido, entonces esa superficie debe coincidir con una linea de corriente. En dos
+            dimensiones esas lineas se describen con una funcion escalar, la funcion de corriente
+            $\psi(x,y)$.
+          </p>
+        </article>
+      </section>
+
+      <section class="wide">
+        <div class="figure-shell">
+          <div class="figure-text">
+            <h2>Dejar que la frontera decida la funcion</h2>
+            <p>
+              La corriente uniforme sola atraviesa el circulo. El control mezcla esa corriente con
+              una correccion tipo dipolo. Cuando la mezcla llega a $\lambda=1$, la circunferencia
+              $r=a$ se vuelve una linea de corriente y la velocidad normal se anula.
+            </p>
+          </div>
+          <div class="controls" aria-label="Controles del flujo">
+            <label>
+              Radio del cilindro $a$
+              <input id="radiusControl" type="range" min="0.45" max="1.25" step="0.05" value="0.8" />
+              <span id="radiusValue">0.80</span>
+            </label>
+            <label>
+              Correccion $\lambda$
+              <input id="lambdaControl" type="range" min="0" max="1" step="0.02" value="1" />
+              <span id="lambdaValue">1.00</span>
+            </label>
+            <button id="resetButton" type="button">Restablecer</button>
+          </div>
+          <canvas id="streamCanvas" width="1100" height="620" aria-label="Lineas de corriente alrededor de un cilindro"></canvas>
+          <p class="caption" id="canvasCaption">
+            Estado inicial: el cilindro es una linea de corriente. Las curvas $\psi=\mathrm{cte}$
+            rodean la frontera y no la cruzan.
+          </p>
+        </div>
+      </section>
+
+      <section class="wide">
+        <div class="comparison">
+          <div class="comparison-text">
+            <h2>Primero mirar el flujo sin el cuerpo</h2>
+            <p>
+              El analisis nace comparando dos escenas. A la izquierda esta la corriente uniforme
+              que existiria si no hubiera obstaculo. A la derecha ponemos el circulo en medio de
+              ese mismo campo. El problema aparece de inmediato: la corriente uniforme no sabe que
+              hay una pared, asi que sus lineas atraviesan el cuerpo.
+            </p>
+          </div>
+          <div class="comparison-panels">
+            <figure>
+              <canvas id="uniformCanvas" width="520" height="340" aria-label="Corriente uniforme sin cuerpo"></canvas>
+              <figcaption>
+                Sin cuerpo: $\psi_U=Ur\sin\phi=Uy$. Las lineas son horizontales y el campo es
+                uniforme.
+              </figcaption>
+            </figure>
+            <figure>
+              <canvas id="failedCanvas" width="520" height="340" aria-label="Corriente uniforme atravesando un circulo"></canvas>
+              <figcaption>
+                Si aparece un circulo, la misma solucion falla: en la frontera
+                $v_r(a,\phi)=U\cos\phi$, que no es cero.
+              </figcaption>
+            </figure>
+          </div>
+          <p class="caption">
+            La correccion tipo dipolo no se introduce por decoracion matematica. Se introduce
+            porque necesitamos cancelar la componente normal sobre $r=a$ sin cambiar el flujo lejos.
+          </p>
+        </div>
+      </section>
+
+      <section class="section-grid">
+        <aside class="side-note">
+          <strong>Convencion usada.</strong>
+          En coordenadas cartesianas:
+          $v_x=\partial\psi/\partial y$ y $v_y=-\partial\psi/\partial x$.
+        </aside>
+        <article>
+          <h2>1. Por que existe una funcion de corriente</h2>
+          <p>
+            Para un flujo plano incompresible, la continuidad dice
+          </p>
+          <div class="equation">$$\nabla\cdot\mathbf v=\frac{\partial v_x}{\partial x}+\frac{\partial v_y}{\partial y}=0.$$</div>
+          <p>
+            Una manera elegante de satisfacer esa condicion automaticamente es definir
+          </p>
+          <div class="equation">$$v_x=\frac{\partial\psi}{\partial y},\qquad v_y=-\frac{\partial\psi}{\partial x}.$$</div>
+          <p>
+            Entonces:
+          </p>
+          <div class="equation">
+            $$\nabla\cdot\mathbf v=
+            \frac{\partial^2\psi}{\partial x\partial y}
+            -
+            \frac{\partial^2\psi}{\partial y\partial x}=0.$$
+          </div>
+          <p>
+            Esto no es magia: las derivadas cruzadas se cancelan. Por eso $\psi$ codifica
+            incompresibilidad. Ademas,
+          </p>
+          <div class="equation">
+            $$\mathbf v\cdot\nabla\psi=
+            \frac{\partial\psi}{\partial y}\frac{\partial\psi}{\partial x}
+            -
+            \frac{\partial\psi}{\partial x}\frac{\partial\psi}{\partial y}=0.$$
+          </div>
+          <p>
+            La velocidad es tangente a las curvas $\psi=\text{cte}$. Esas curvas son lineas de
+            corriente.
+          </p>
+        </article>
+      </section>
+
+      <section class="section-grid">
+        <aside class="side-note">
+          <strong>Cadena clave.</strong>
+          Continuidad permite escribir el campo con $\psi$; irrotacionalidad obliga a que $\psi$
+          sea armonica.
+        </aside>
+        <article>
+          <h2>2. Irrotacionalidad: aparece Laplace</h2>
+          <p>
+            En un flujo plano, la vorticidad solo tiene componente perpendicular al plano:
+          </p>
+          <div class="equation">$$\omega_z=\frac{\partial v_y}{\partial x}-\frac{\partial v_x}{\partial y}.$$</div>
+          <p>
+            Sustituyendo la definicion de funcion de corriente,
+          </p>
+          <div class="equation">
+            $$\omega_z=
+            \frac{\partial}{\partial x}\left(-\frac{\partial\psi}{\partial x}\right)
+            -
+            \frac{\partial}{\partial y}\left(\frac{\partial\psi}{\partial y}\right)
+            =
+            -\left(\frac{\partial^2\psi}{\partial x^2}
+            +\frac{\partial^2\psi}{\partial y^2}\right).$$
+          </div>
+          <p>
+            Es decir,
+          </p>
+          <div class="equation highlight">$$\omega_z=-\nabla^2\psi.$$</div>
+          <p>
+            Si el flujo exterior al cilindro es irrotacional, entonces $\omega_z=0$. Por tanto la
+            funcion de corriente debe satisfacer
+          </p>
+          <div class="equation highlight">$$\boxed{\nabla^2\psi=0.}$$</div>
+          <p>
+            Ahora el problema queda bien planteado: buscar una funcion armonica fuera del circulo,
+            que parezca una corriente uniforme lejos y cuya frontera $r=a$ sea una linea de
+            corriente.
+          </p>
+        </article>
+      </section>
+
+      <section class="derivation">
+        <div>
+          <h2>3. Cambiar a coordenadas polares</h2>
+          <p>
+            Para un cilindro, la frontera natural es $r=a$, asi que conviene escribir la misma idea
+            en polares:
+          </p>
+          <div class="equation">$$v_r=\frac{1}{r}\frac{\partial\psi}{\partial\phi},\qquad v_\phi=-\frac{\partial\psi}{\partial r}.$$</div>
+          <p>
+            Una corriente uniforme en direccion $x$ tiene componentes:
+          </p>
+          <div class="equation">$$v_r=U\cos\phi,\qquad v_\phi=-U\sin\phi.$$</div>
+          <p>
+            La funcion de corriente que produce esas componentes es
+          </p>
+          <div class="equation">$$\psi_U=Ur\sin\phi.$$</div>
+        </div>
+        <div class="check-card">
+          <h3>Comprobacion rapida</h3>
+          <p>
+            Si $\psi_U=Ur\sin\phi$, entonces
+          </p>
+          <div class="equation small">$$\frac1r\frac{\partial\psi_U}{\partial\phi}=U\cos\phi,$$</div>
+          <div class="equation small">$$-\frac{\partial\psi_U}{\partial r}=-U\sin\phi.$$</div>
+          <p>
+            Esa corriente es correcta lejos del cuerpo, pero todavia atraviesa el circulo porque
+            $v_r(a,\phi)=U\cos\phi$.
+          </p>
+        </div>
+      </section>
+
+      <section class="section-grid">
+        <aside class="side-note">
+          <strong>La idea de tus notas.</strong>
+          La correccion debe tener la misma simetria angular, apagarse lejos y ajustar la condicion
+          $v_r(a,\phi)=0$.
+        </aside>
+        <article>
+          <h2>4. La correccion que no cambia el infinito</h2>
+          <p>
+            Como fuera del cilindro $\nabla^2\psi=0$, buscamos una solucion armonica. Para la
+            simetria angular $\sin\phi$, las soluciones separables relevantes tienen la forma
+          </p>
+          <div class="equation">$$\psi(r,\phi)=\left(Ar+\frac{B}{r}\right)\sin\phi.$$</div>
+          <p>
+            El termino $Ar\sin\phi$ representa la corriente uniforme. El termino $B\sin\phi/r$
+            es la correccion que se apaga cuando $r\to\infty$. Tomamos entonces
+          </p>
+          <div class="equation">$$\psi=\left(Ur+\frac{B}{r}\right)\sin\phi.$$</div>
+          <p>
+            Ahora dejamos que la pared decida $B$. Si $r=a$ debe ser una linea de corriente, podemos
+            imponer $\psi(a,\phi)=0$:
+          </p>
+          <div class="equation">$$\left(Ua+\frac{B}{a}\right)\sin\phi=0.$$</div>
+          <p>
+            Para que valga para todo $\phi$:
+          </p>
+          <div class="equation">$$Ua+\frac{B}{a}=0\quad\Rightarrow\quad B=-Ua^2.$$</div>
+          <p>
+            Por tanto,
+          </p>
+          <div class="equation highlight">$$\boxed{\psi=U\left(r-\frac{a^2}{r}\right)\sin\phi.}$$</div>
+        </article>
+      </section>
+
+      <section class="two-column">
+        <div>
+          <h2>5. Leer las velocidades</h2>
+          <p>
+            Ahora no basta mirar la funcion: hay que recuperar el campo. Derivando:
+          </p>
+          <div class="equation">$$v_r=\frac1r\frac{\partial\psi}{\partial\phi}
+          =U\left(1-\frac{a^2}{r^2}\right)\cos\phi,$$</div>
+          <div class="equation">$$v_\phi=-\frac{\partial\psi}{\partial r}
+          =-U\left(1+\frac{a^2}{r^2}\right)\sin\phi.$$</div>
+          <p>
+            En $r=a$ aparece la condicion de impermeabilidad:
+          </p>
+          <div class="equation">$$v_r(a,\phi)=0.$$</div>
+        </div>
+        <div>
+          <h2>6. Que no estamos imponiendo</h2>
+          <p>
+            En un fluido ideal imponemos no penetracion, pero no no deslizamiento. Por eso la
+            velocidad tangencial en la pared puede ser distinta de cero:
+          </p>
+          <div class="equation">$$v_\phi(a,\phi)=-2U\sin\phi.$$</div>
+          <p>
+            Esta es una buena advertencia fisica: el flujo potencial alrededor de un cilindro enseña
+            muy bien la geometria exterior, pero no describe por si solo la capa limite viscosa ni
+            el arrastre real.
+          </p>
+        </div>
+      </section>
+
+      <section class="wide">
+        <div class="stepper">
+          <div class="stepper-header">
+            <h2>La deduccion en siete pasos</h2>
+            <div class="step-buttons" id="stepButtons"></div>
+          </div>
+          <div id="stepContent" class="step-content"></div>
+        </div>
+      </section>
+
+      <section class="section-grid">
+        <aside class="side-note">
+          <strong>Chequeo interno.</strong>
+          La solucion no solo debe verse bien: debe cumplir Laplace y la condicion de no
+          penetracion.
+        </aside>
+        <article>
+          <h2>Chequeo: la solucion es irrotacional</h2>
+          <p>
+            La construccion ya uso la ecuacion de Laplace, pero conviene cerrar el circulo:
+          </p>
+          <div class="equation">$$\omega_z=-\nabla^2\psi.$$</div>
+          <p>
+            En el exterior del cilindro, la funcion
+          </p>
+          <div class="equation">$$\psi=U\left(r-\frac{a^2}{r}\right)\sin\phi$$</div>
+          <p>
+            es armonica para $r>a$, de modo que
+          </p>
+          <div class="equation highlight">$$\nabla^2\psi=0\quad\Rightarrow\quad \omega_z=0.$$</div>
+          <p>
+            La otra condicion clave es la frontera. Como
+          </p>
+          <div class="equation">$$v_r=U\left(1-\frac{a^2}{r^2}\right)\cos\phi,$$</div>
+          <p>
+            entonces $v_r(a,\phi)=0$. El campo no penetra el circulo. Esa es la lectura fisica
+            principal de la solucion.
+          </p>
+        </article>
+      </section>
+
+      <section class="two-column">
+        <div>
+          <h2>Paralelo: la esfera</h2>
+          <p>
+            Para la esfera conviene hacer una pausa: no basta copiar la forma del cilindro. En
+            tres dimensiones axisimetricas, la herramienta mas directa para construir primero el
+            campo es el potencial de velocidad $\varphi$, porque el flujo irrotacional permite
+            escribir
+          </p>
+          <div class="equation small">$$\mathbf v=\nabla\varphi,\qquad \nabla^2\varphi=0.$$</div>
+          <p>
+            Lejos de la esfera queremos una corriente uniforme en direccion del eje polar. El
+            potencial de esa corriente es $\varphi_U=Ur\cos\theta$. La correccion exterior con la
+            misma simetria angular tiene forma de dipolo tridimensional:
+          </p>
+          <div class="equation small">$$\varphi=\left(Ur+\frac{B}{r^2}\right)\cos\theta.$$</div>
+        </div>
+        <div>
+          <h2>Primero se fija $\varphi$</h2>
+          <p>
+            Como $v_r=\partial\varphi/\partial r$, la condicion de no penetracion en $r=a$ exige:
+          </p>
+          <div class="equation small">$$v_r=\left(U-\frac{2B}{r^3}\right)\cos\theta,$$</div>
+          <div class="equation small">$$v_r(a,\theta)=0
+          \quad\Rightarrow\quad
+          U-\frac{2B}{a^3}=0
+          \quad\Rightarrow\quad
+          B=\frac12Ua^3.$$</div>
+          <p>
+            Entonces el potencial correcto es
+          </p>
+          <div class="equation highlight small">$$\varphi=U\left(r+\frac{a^3}{2r^2}\right)\cos\theta.$$</div>
+        </div>
+      </section>
+
+      <section class="section-grid">
+        <aside class="side-note">
+          <strong>Por que despejar $\psi$.</strong>
+          La funcion de corriente de la esfera no se adivina con la forma plana; se obtiene
+          integrando el campo ya construido con $\varphi$.
+        </aside>
+        <article>
+          <h2>Luego se recupera la funcion de corriente</h2>
+          <p>
+            Del potencial se leen las velocidades:
+          </p>
+          <div class="equation">$$v_r=\frac{\partial\varphi}{\partial r}
+          =U\left(1-\frac{a^3}{r^3}\right)\cos\theta,$$</div>
+          <div class="equation">$$v_\theta=\frac1r\frac{\partial\varphi}{\partial\theta}
+          =-U\left(1+\frac{a^3}{2r^3}\right)\sin\theta.$$</div>
+          <p>
+            En flujo axisimetrico la funcion de corriente se define de otra manera:
+          </p>
+          <div class="equation">$$v_r=\frac{1}{r^2\sin\theta}\frac{\partial\psi}{\partial\theta},\qquad
+          v_\theta=-\frac{1}{r\sin\theta}\frac{\partial\psi}{\partial r}.$$</div>
+          <p>
+            Por la primera ecuacion,
+          </p>
+          <div class="equation">$$\frac{\partial\psi}{\partial\theta}
+          =r^2\sin\theta\,v_r
+          =Ur^2\left(1-\frac{a^3}{r^3}\right)\sin\theta\cos\theta.$$</div>
+          <p>
+            Integramos respecto a $\theta$:
+          </p>
+          <div class="equation">$$\psi=
+          \frac12Ur^2\left(1-\frac{a^3}{r^3}\right)\sin^2\theta+C(r).$$</div>
+          <p>
+            La segunda ecuacion para $v_\theta$ obliga a que $C'(r)=0$, asi que esa constante no
+            cambia el campo. Podemos tomarla cero y queda:
+          </p>
+          <div class="equation highlight">$$\boxed{
+          \psi=\frac12Ur^2\sin^2\theta\left(1-\frac{a^3}{r^3}\right).
+          }$$</div>
+          <p>
+            Esta es la diferencia importante con el cilindro: en la esfera primero construimos
+            $\varphi$, porque el potencial nos da directamente un campo irrotacional en tres
+            dimensiones; luego despejamos la $\psi$ axisimetrica que representa el caudal entre
+            superficies de corriente.
+          </p>
+        </article>
+      </section>
+
+      <section class="checks">
+        <h2>Preguntas para cerrar</h2>
+        <ol>
+          <li>Si $\psi=\mathrm{cte}$ es una linea de corriente, ¿por que una pared solida puede describirse como una curva de nivel de $\psi$?</li>
+          <li>¿Que falla si usamos solo $\psi_U=Ur\sin\phi$ frente a un cilindro?</li>
+          <li>¿Por que en fluido ideal se permite $v_\phi(a,\phi)\ne0$ aunque $v_r(a,\phi)=0$?</li>
+          <li>¿Que papel distinto juegan incompresibilidad e irrotacionalidad en la deduccion?</li>
+        </ol>
+      </section>
+
+      <footer>
+        <p>
+          Fuentes: notas de clase sobre funcion de corriente, vorticidad y flujo ideal; problema 13.10
+          de Lautrup, <em>Physics of Continuous Matter</em>; anotaciones manuscritas del curso.
+        </p>
+      </footer>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>

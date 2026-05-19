@@ -12,7 +12,8 @@
     a { color: #2f7f73; font-weight: 700; }
     .item { margin-top: 36px; padding: 22px; background: #fff; border: 1px solid #d8ded7; border-radius: 8px; }
     .item + .item { margin-top: 18px; }
-    .muted { background: #f7f8f5; }
+    .link-block { margin: 18px 0 0; }
+    .link-block p { margin: 8px 0 0; }
   </style>
 </head>
 <body>
@@ -21,12 +22,21 @@
     <p>Explicaciones interactivas para cursos y talleres.</p>
     <section class="item">
       <h2>Mecánica Celeste</h2>
-      <p><a href="meccel/funcionales-euler-lagrange/">Funcionales, accion y ecuaciones de Euler-Lagrange</a></p>
-      <p>De funciones a funcionales, deduccion de Euler-Lagrange, longitud de arco, principio de Hamilton y lectura lagrangiana de dos bloques unidos por un resorte.</p>
+      <div class="link-block">
+        <p><a href="meccel/funcionales-euler-lagrange/">Funcionales, accion y ecuaciones de Euler-Lagrange</a></p>
+        <p>De funciones a funcionales, deduccion de Euler-Lagrange, longitud de arco, principio de Hamilton y lectura lagrangiana de dos bloques unidos por un resorte.</p>
+      </div>
     </section>
-    <section class="item muted">
+    <section class="item">
       <h2>Mecánica de Medios Continuos</h2>
-      <p>Próximamente: explicaciones interactivas para los temas del curso.</p>
+      <div class="link-block">
+        <p><a href="mcon/funcion-corriente-cilindro/">Funcion de corriente alrededor de un cilindro</a></p>
+        <p>Incompresibilidad, irrotacionalidad, ecuacion de Laplace y construccion de un flujo que rodea un obstaculo circular.</p>
+      </div>
+      <div class="link-block">
+        <p><a href="mcon/solidos-elasticos-computacional/">Solucion computacional de solidos elasticos</a></p>
+        <p>De desplazamientos a deformaciones, esfuerzos, residuo de equilibrio y relajacion computacional en una malla.</p>
+      </div>
     </section>
   </main>
 </body>

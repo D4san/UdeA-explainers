@@ -12,7 +12,8 @@ La guía de trabajo del repositorio está en [`AGENTS.md`](AGENTS.md). Ahí se f
 
 ### Mecánica de Medios Continuos
 
-- Próximamente.
+- [Funcion de corriente alrededor de un cilindro](mcon/funcion-corriente-cilindro/index.html)
+- [Solucion computacional de solidos elasticos](mcon/solidos-elasticos-computacional/index.html)
 
 ## Estructura sugerida
 
