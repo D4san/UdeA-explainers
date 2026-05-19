@@ -2,6 +2,8 @@
 
 Repositorio de explicaciones interactivas para cursos y talleres.
 
+La guía de trabajo del repositorio está en [`AGENTS.md`](AGENTS.md). Ahí se fija el estándar pedagógico, la estructura de carpetas y la lista de verificación antes de publicar.
+
 ## Explicaciones disponibles
 
 ### Mecánica Celeste
@@ -23,3 +25,11 @@ curso-o-area/
 ```
 
 La idea es mantener cada explicación como un sitio estático autocontenido, facil de publicar en GitHub Pages o Netlify.
+
+## Publicación
+
+GitHub Pages publica desde la rama `main` y la carpeta raíz `/`.
+
+Sitio público:
+
+<https://d4san.github.io/UdeA-explainers/>
