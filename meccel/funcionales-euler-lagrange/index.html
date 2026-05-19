@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Funcionales, acción y Euler-Lagrange</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header class="article-hero">
+    <nav class="topbar" aria-label="Navegación de la explicación">
+      <a href="#funcional">Funcionales</a>
+      <a href="#variacion">Variaciones</a>
+      <a href="#euler">Euler-Lagrange</a>
+      <a href="#arco">Arco</a>
+      <a href="#accion">Acción</a>
+      <a href="#chequeo">Chequeo</a>
+    </nav>
+    <div class="hero-grid">
+      <div>
+        <h1>Funcionales, acción y ecuaciones de Euler-Lagrange</h1>
+        <p class="dek">Una explicación interactiva para pasar de “cambiar un número” a “deformar una trayectoria completa”.</p>
+      </div>
+      <div class="hero-card" aria-label="Mapa conceptual">
+        <ol>
+          <li>Función ordinaria</li>
+          <li>Funcional</li>
+          <li>Familia vecina $f_0+\epsilon\eta$</li>
+          <li>Integración por partes</li>
+          <li>Euler-Lagrange</li>
+          <li>Longitud de arco: recta euclídea</li>
+          <li>Acción $S=\int L\,dt$</li>
+        </ol>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section lead" id="promesa">
+      <p class="section-kicker">Promesa de la página</p>
+      <h2>Después de esta lectura, el estudiante debería poder explicar por qué una condición sobre un número construido con toda una trayectoria produce una ecuación diferencial local.</h2>
+      <p>La idea no empieza en la física. Empieza en un cambio de objeto matemático: en cálculo ordinario buscamos números que extreman funciones; en cálculo variacional buscamos funciones completas que extreman funcionales.</p>
+    </section>
+
+    <section class="section" id="funcional">
+      <div class="two-col">
+        <article>
+          <p class="section-kicker">1. Cambiar el objeto</p>
+          <h2>Una función devuelve valores. Un funcional devuelve un número a partir de una función completa.</h2>
+          <p>Una función ordinaria puede escribirse como $f:\mathbb{R}\to\mathbb{R}$: toma un valor $t$ y devuelve $f(t)$. En cambio, un funcional se escribe como $I:\mathcal{A}\to\mathbb{R}$: toma una función completa $f$ y devuelve un número.</p>
+          <div class="equation-row">
+            <span>$t$</span>
+            <span>$\longmapsto$</span>
+            <span>$f(t)$</span>
+            <span>$\longmapsto$</span>
+            <span>$I[f]$</span>
+          </div>
+          <p>Por ejemplo, $I[f]=\int_a^b f(t)\,dt$ mide el área firmada bajo la curva. Otro funcional, $N[f]=\int_a^b f(t)^2\,dt$, mide el tamaño cuadrático acumulado. La longitud de arco usa también la derivada: $I[f]=\int_a^b\sqrt{1+\dot f(t)^2}\,dt$.</p>
+        </article>
+        <aside class="margin-note">
+          <strong>Idea para tablero.</strong>
+          <span>La pregunta cambia de “¿qué número $x$ extremiza $g(x)$?” a “¿qué función $f(t)$ extremiza $I[f]$?”.</span>
+        </aside>
+      </div>
+    </section>
+
+    <section class="figure-section" id="playground">
+      <div class="figure-copy">
+        <p class="section-kicker">Interactivo 1</p>
+        <h2>Deformar una curva cambia el valor del funcional.</h2>
+        <p>La curva candidata es $f_0(t)=t$. La deformación es $\eta(t)=\sin(\pi t)$, que se anula en los extremos. Mueve $\epsilon$ y observa que no estás caminando sobre la curva: estás cambiando la curva completa.</p>
+      </div>
+      <div class="interactive-panel">
+        <div class="canvas-wrap">
+          <svg id="curveSvg" viewBox="0 0 720 360" role="img" aria-label="Curva base y curva variada"></svg>
+        </div>
+        <div class="controls">
+          <label for="epsilon">Amplitud de variación $\epsilon$</label>
+          <input id="epsilon" type="range" min="-0.8" max="0.8" value="0.35" step="0.01">
+          <output id="epsilonValue">0.35</output>
+          <button id="resetEpsilon" type="button">Restaurar</button>
+        </div>
+        <div class="readout" aria-live="polite">
+          <span>Área $\int f\,dt$: <strong id="areaValue"></strong></span>
+          <span>Tamaño $\int f^2\,dt$: <strong id="normValue"></strong></span>
+          <span>Longitud $\int\sqrt{1+\dot f^2}\,dt$: <strong id="lengthValue"></strong></span>
+        </div>
+      </div>
+      <p class="try-this">Prueba esto: pon $\epsilon$ positivo y luego negativo. ¿Qué funcional cambia más? ¿Cuál parece menos sensible a esta deformación?</p>
+    </section>
+
+    <section class="section" id="variacion">
+      <div class="two-col">
+        <article>
+          <p class="section-kicker">2. Variar no es derivar en el tiempo</p>
+          <h2>La derivada temporal camina sobre una curva. La variación cambia la curva.</h2>
+          <p>Para comparar funciones cercanas introducimos una familia:</p>
+          <p class="display">$$f(t;\epsilon)=f_0(t)+\epsilon\eta(t).$$</p>
+          <p>Cuando $\epsilon=0$ recuperamos la función candidata $f_0(t)$. Cuando $\epsilon$ es pequeño pero distinto de cero, obtenemos una función vecina. Así convertimos el problema variacional en una función ordinaria de una variable:</p>
+          <p class="display">$$\Phi(\epsilon)=I[f_0+\epsilon\eta].$$</p>
+          <p>La condición de estacionariedad se escribe como</p>
+          <p class="display">$$\left.\frac{d}{d\epsilon}I[f_0+\epsilon\eta]\right|_{\epsilon=0}=0,$$</p>
+          <p>y debe cumplirse para toda variación admisible $\eta(t)$.</p>
+        </article>
+        <aside class="margin-note">
+          <strong>Extremos fijos.</strong>
+          <span>Si todas las funciones comparadas pasan por los mismos puntos inicial y final, entonces $\eta(a)=\eta(b)=0$. Esa condición apagará el término de frontera.</span>
+        </aside>
+      </div>
+    </section>
+
+    <section class="figure-section" id="euler">
+      <div class="figure-copy">
+        <p class="section-kicker">Interactivo 2</p>
+        <h2>La deducción de Euler-Lagrange, paso a paso.</h2>
+        <p>La deducción no es un truco de memoria: es una cadena de traducciones. Primero diferenciamos con respecto a $\epsilon$, luego integramos por partes, y finalmente usamos que $\eta$ es arbitraria.</p>
+      </div>
+      <div class="stepper">
+        <div class="stepper-controls" role="tablist" aria-label="Pasos de la deducción">
+          <button class="step-button active" data-step="0" type="button">1</button>
+          <button class="step-button" data-step="1" type="button">2</button>
+          <button class="step-button" data-step="2" type="button">3</button>
+          <button class="step-button" data-step="3" type="button">4</button>
+          <button class="step-button" data-step="4" type="button">5</button>
+          <button class="step-button" data-step="5" type="button">6</button>
+          <button class="step-button" data-step="6" type="button">7</button>
+          <button class="step-button" data-step="7" type="button">8</button>
+        </div>
+        <div class="step-content">
+          <h3 id="stepTitle"></h3>
+          <div id="stepEquation" class="big-equation"></div>
+          <p id="stepText"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="figure-section" id="arco">
+      <div class="figure-copy">
+        <p class="section-kicker">Ejemplo geométrico</p>
+        <h2>Longitud de arco: Euler-Lagrange antes de Hamilton.</h2>
+        <p>Antes de llamar acción al funcional, conviene resolver un caso puramente geométrico. Entre dos puntos del plano euclídeo, se busca la curva $y=f(x)$ con menor longitud.</p>
+        <p>El funcional es</p>
+        <p class="display">$$I[f]=\int_a^b\sqrt{1+\dot f(x)^2}\,dx,$$</p>
+        <p>donde el integrando no depende explícitamente de $f$, sino de su pendiente $\dot f$.</p>
+      </div>
+      <div class="interactive-panel">
+        <svg id="arcSvg" viewBox="0 0 760 300" role="img" aria-label="Comparación entre curva ondulada y línea recta"></svg>
+        <div class="analysis-stack">
+          <article>
+            <h3>1. Identificar el integrando</h3>
+            <p>$$L(f,\dot f,x)=\sqrt{1+\dot f^2}.$$</p>
+            <p>Como $L$ no contiene a $f$ explícitamente, $\partial L/\partial f=0$.</p>
+          </article>
+          <article>
+            <h3>2. Aplicar Euler-Lagrange</h3>
+            <p>$$\frac{d}{dx}\left(\frac{\partial L}{\partial \dot f}\right)-\frac{\partial L}{\partial f}=0.$$</p>
+            <p>Entonces</p>
+            <p>$$\frac{d}{dx}\left(\frac{\dot f}{\sqrt{1+\dot f^2}}\right)=0.$$</p>
+          </article>
+          <article>
+            <h3>3. Interpretar la constante</h3>
+            <p>Si la derivada es cero, entonces</p>
+            <p>$$\frac{\dot f}{\sqrt{1+\dot f^2}}=C.$$</p>
+            <p>De ahí se sigue que $\dot f$ es constante. Por tanto</p>
+            <p>$$f(x)=Ax+B.$$</p>
+          </article>
+        </div>
+        <p class="panel-note">Conclusión: en el plano euclídeo, la curva estacionaria de la longitud de arco es una recta. Aquí Euler-Lagrange todavía no es una ley física; es una condición geométrica.</p>
+      </div>
+    </section>
+
+    <section class="section" id="accion">
+      <p class="section-kicker">4. El puente físico</p>
+      <h2>La acción es el funcional del principio de Hamilton.</h2>
+      <p>En geometría, $f(t)$ puede representar una curva. En mecánica, la función desconocida es una trayectoria $q(t)$ en el espacio de configuración. El funcional central recibe un nombre propio: <strong>acción</strong>.</p>
+      <p class="display">$$S[q]=\int_{t_1}^{t_2}L(q(t),\dot q(t),t)\,dt.$$</p>
+      <p>El <strong>principio de Hamilton</strong> afirma que la evolución real del sistema entre $t_1$ y $t_2$ hace estacionaria esa acción:</p>
+      <p class="display">$$\left.\delta S\right|_{q=q^0}=0,$$</p>
+      <p>donde $q^0(t)$ denota la trayectoria física. No es obligatorio decir “mínima acción”: lo correcto y más general es “acción estacionaria”, porque el valor estacionario puede ser mínimo, máximo o punto silla.</p>
+      <p>Para varias coordenadas generalizadas el principio se escribe como</p>
+      <p class="display">$$S[\{q_j\}]=\int_{t_1}^{t_2}L(\{q_j(t)\},\{\dot q_j(t)\},t)\,dt,$$</p>
+      <p>y de $\delta S=0$ se obtiene una ecuación de Euler-Lagrange por cada coordenada $q_j$.</p>
+      <div class="recipe">
+        <h3>Receta operativa mínima</h3>
+        <ol>
+          <li>Escoger coordenadas generalizadas $q_j$.</li>
+          <li>Escribir $T$ en esas coordenadas y velocidades.</li>
+          <li>Escribir $U$ en esas coordenadas.</li>
+          <li>Formar $L=T-U$.</li>
+          <li>Aplicar Euler-Lagrange para cada $q_j$.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="figure-section compact" id="coupled">
+      <div class="figure-copy">
+        <p class="section-kicker">Interactivo 3 · Lectura de un lagrangiano</p>
+        <h2>Dos bloques unidos por un resorte.</h2>
+        <p>La idea aquí no es “resolver todo” sino leer el lagrangiano. Con las coordenadas originales $x_1,x_2$ se ve la interacción interna; con $X$ y $r=x_2-x_1$ se ve qué cantidad es cíclica y qué parte conserva energía.</p>
+      </div>
+      <div class="interactive-panel">
+        <svg id="coupledSvg" viewBox="0 0 760 280" role="img" aria-label="Dos bloques unidos por un resorte"></svg>
+        <div class="controls grid-controls">
+          <label for="mass1">Masa $m_1$</label>
+          <input id="mass1" type="range" min="0.5" max="5" value="1.5" step="0.1">
+          <output id="mass1Value">1.5</output>
+          <label for="mass2">Masa $m_2$</label>
+          <input id="mass2" type="range" min="0.5" max="5" value="2.5" step="0.1">
+          <output id="mass2Value">2.5</output>
+          <label for="spring">Constante $k$</label>
+          <input id="spring" type="range" min="0.5" max="8" value="3" step="0.1">
+          <output id="springValue">3.0</output>
+        </div>
+        <div class="readout coupled-readout">
+          <span>Masa total $M$: <strong id="totalMassValue"></strong></span>
+          <span>Masa reducida $\mu$: <strong id="reducedMassValue"></strong></span>
+          <span>$\omega=\sqrt{k/\mu}$: <strong id="omegaValue"></strong></span>
+          <span>Ecuaciones: <strong id="eqMotion"></strong></span>
+        </div>
+        <div class="analysis-stack">
+          <article>
+            <h3>1. Coordenadas originales</h3>
+            <p>Se toma $s=x_2-x_1-a$. Entonces</p>
+            <p>$$L=\frac12m_1\dot x_1^2+\frac12m_2\dot x_2^2-\frac12ks^2.$$</p>
+            <p>El potencial depende de la separación, no de la posición absoluta.</p>
+          </article>
+          <article>
+            <h3>2. Qué conservamos</h3>
+            <p>Como $L$ no depende del tiempo, se conserva la energía:</p>
+            <p>$$E=T+U.$$</p>
+            <p>Como una traslación común $x_1,x_2\mapsto x_1+c,x_2+c$ no cambia $L$, se conserva el momento total $P=m_1\dot x_1+m_2\dot x_2$.</p>
+          </article>
+          <article>
+            <h3>3. Dos coordenadas mejores</h3>
+            <p>Con $X=\frac{m_1x_1+m_2x_2}{M}$ y $r=x_2-x_1$:</p>
+            <p>$$L=\frac12M\dot X^2+\frac12\mu\dot r^2-\frac12k(r-a)^2.$$</p>
+            <p>$X$ es cíclica, así que $M\dot X$ es constante. La coordenada interna $s=r-a$ contiene la oscilación.</p>
+          </article>
+        </div>
+        <p class="panel-note">La animación muestra el caso $X=\mathrm{cte}$ para que se vea solo la coordenada relativa. El análisis importante es que el lagrangiano separa movimiento global e interno.</p>
+      </div>
+    </section>
+
+    <section class="section" id="chequeo">
+      <p class="section-kicker">Cierre</p>
+      <h2>Preguntas de salida</h2>
+      <div class="checks">
+        <details>
+          <summary>¿Cuál es la diferencia entre $\dot q$ y $\delta q$?</summary>
+          <p>$\dot q$ mide cambio de la coordenada con el tiempo sobre una misma trayectoria. $\delta q$ representa una deformación de la trayectoria completa hacia una trayectoria vecina.</p>
+        </details>
+        <details>
+          <summary>¿Por qué se exige $\eta(t_1)=\eta(t_2)=0$?</summary>
+          <p>Porque se comparan trayectorias con los mismos extremos. Esa condición elimina el término de frontera al integrar por partes.</p>
+        </details>
+        <details>
+          <summary>¿En qué paso aparece Euler-Lagrange?</summary>
+          <p>Aparece cuando la integral queda como $\int [\partial L/\partial f-d/dt(\partial L/\partial \dot f)]\eta(t)\,dt=0$ para toda $\eta$. La arbitrariedad de $\eta$ obliga a anular el corchete.</p>
+        </details>
+      </div>
+      <footer class="source-note">
+        Basado en la nota de clase: <em>Clase taller - Funcionales accion y Euler Lagrange.md</em>. Esta web conserva el foco del guion: funcionales, variaciones, Euler-Lagrange y acción como puente hacia problemas lagrangianos.
+      </footer>
+    </section>
+  </main>
+</body>
+</html>
