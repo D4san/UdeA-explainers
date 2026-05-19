@@ -4,7 +4,13 @@ Repositorio de explicaciones interactivas para cursos y talleres.
 
 ## Explicaciones disponibles
 
-- [MECCEL - Funcionales, accion y Euler-Lagrange](meccel/funcionales-euler-lagrange/index.html)
+### Mecánica Celeste
+
+- [Funcionales, accion y Euler-Lagrange](meccel/funcionales-euler-lagrange/index.html)
+
+### Mecánica de Medios Continuos
+
+- Próximamente.
 
 ## Estructura sugerida
 
