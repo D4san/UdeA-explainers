@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ondas, flotabilidad e inestabilidad</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Ir al inicio">
+      <span class="brand-mark"></span>
+      <span>MCON</span>
+    </a>
+    <nav aria-label="Secciones">
+      <a href="#sonido">Sonido</a>
+      <a href="#parcela">Parcela</a>
+      <a href="#interfaz">Interfaz</a>
+      <a href="#cierre">Cierre</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="course">Mecánica de Medios Continuos</p>
+        <h1>¿Cuándo una perturbación se vuelve onda y cuándo rompe el equilibrio?</h1>
+        <p class="dek">
+          Un recorrido interactivo desde la linealización de un fluido compresible hasta
+          ondas de gravedad e inestabilidad de Rayleigh-Taylor.
+        </p>
+      </div>
+      <div class="hero-visual" aria-label="Diagrama animado de una perturbación">
+        <canvas id="heroCanvas" width="900" height="560"></canvas>
+      </div>
+    </section>
+
+    <article class="article">
+      <aside class="toc" aria-label="Mapa del artículo">
+        <a href="#pregunta">Pregunta</a>
+        <a href="#linealizacion">Linealización</a>
+        <a href="#algebra">Álgebra</a>
+        <a href="#sonido">Onda sonora</a>
+        <a href="#parcela">Flotabilidad</a>
+        <a href="#interfaz">Dos fluidos</a>
+        <a href="#cierre">Diagnóstico</a>
+      </aside>
+
+      <div class="content">
+        <section id="pregunta" class="section">
+          <p class="kicker">La idea central</p>
+          <h2>Una perturbación pequeña es una pregunta de estabilidad.</h2>
+          <p>
+            Partimos de un estado base tranquilo. Luego lo empujamos apenas y miramos
+            la primera respuesta. Si la física devuelve el sistema al equilibrio,
+            aparece una frecuencia real y vemos una onda. Si la física refuerza el
+            desplazamiento, la frecuencia se vuelve imaginaria y aparece crecimiento.
+          </p>
+          <div class="equation-row">
+            <div class="equation">
+              <span>f = f<sub>0</sub> + f'</span>
+              <small>estado base + perturbación</small>
+            </div>
+            <div class="equation">
+              <span>f'g' ≈ 0</span>
+              <small>se descarta segundo orden</small>
+            </div>
+            <div class="equation">
+              <span>ω² &gt; 0 / ω² &lt; 0</span>
+              <small>oscilar o crecer</small>
+            </div>
+          </div>
+        </section>
+
+        <section id="linealizacion" class="section split">
+          <div>
+            <p class="kicker">Paso 1</p>
+            <h2>Linealizar no es borrar: es mirar solo el primer gesto.</h2>
+            <p>
+              Para un medio inicialmente uniforme y en reposo escribimos
+              <span class="math">ρ = ρ<sub>0</sub> + Δρ</span>,
+              <span class="math">p = p<sub>0</sub> + Δp</span> y
+              <span class="math">v = Δv</span>. En continuidad, el producto
+              <span class="math">Δρ Δv</span> es de segundo orden y queda fuera.
+            </p>
+            <p>
+              En Euler ocurre algo parecido. Aunque
+              <span class="math">1/ρ = 1/(ρ<sub>0</sub> + Δρ)</span>, la corrección
+              <span class="math">-Δρ/ρ<sub>0</sub><sup>2</sup></span> solo multiplicaría
+              a <span class="math">∇Δp</span>. Eso también es producto de
+              perturbaciones.
+            </p>
+          </div>
+          <div class="derivation-panel">
+            <h3>Ecuaciones que sobreviven</h3>
+            <ol>
+              <li><span>∂<sub>t</sub>Δρ + ρ<sub>0</sub>∇·Δv = 0</span></li>
+              <li><span>∂<sub>t</sub>Δv = -(1/ρ<sub>0</sub>)∇Δp</span></li>
+              <li><span>Δp = c<sub>s</sub><sup>2</sup>Δρ</span></li>
+            </ol>
+          </div>
+        </section>
+
+        <section id="algebra" class="section">
+          <p class="kicker">Rastro algebraico</p>
+          <h2>El cálculo enseña qué términos tienen derecho a quedarse.</h2>
+          <p>
+            La linealización no es una receta para simplificar por gusto. Es una
+            contabilidad de tamaños: lo que contiene una sola perturbación se conserva;
+            lo que multiplica dos perturbaciones se considera de segundo orden y se
+            descarta en el diagnóstico inicial.
+          </p>
+
+          <div class="algebra-grid">
+            <details class="algebra-card" open>
+              <summary>Continuidad: de masa exacta a masa linealizada</summary>
+              <div class="calc-lines">
+                <p><span>∂<sub>t</sub>ρ + ∇·(ρv) = 0</span></p>
+                <p><span>ρ = ρ<sub>0</sub> + Δρ, &nbsp; v = Δv</span></p>
+                <p><span>∂<sub>t</sub>(ρ<sub>0</sub> + Δρ) + ∇·[(ρ<sub>0</sub> + Δρ)Δv] = 0</span></p>
+                <p><span>∂<sub>t</sub>Δρ + ρ<sub>0</sub>∇·Δv + ∇·(Δρ Δv) = 0</span></p>
+                <p class="drop"><span>∇·(Δρ Δv)</span><small>producto de perturbaciones</small></p>
+                <p class="result"><span>∂<sub>t</sub>Δρ + ρ<sub>0</sub>∇·Δv = 0</span></p>
+              </div>
+            </details>
+
+            <details class="algebra-card" open>
+              <summary>Euler: por qué aparece solo ∇Δp/ρ<sub>0</sub></summary>
+              <div class="calc-lines">
+                <p><span>∂<sub>t</sub>v + (v·∇)v = -(1/ρ)∇p</span></p>
+                <p class="drop"><span>(Δv·∇)Δv</span><small>también es segundo orden</small></p>
+                <p><span>1/(ρ<sub>0</sub> + Δρ) = (1/ρ<sub>0</sub>)(1 + Δρ/ρ<sub>0</sub>)<sup>-1</sup></span></p>
+                <p><span>1/ρ ≈ 1/ρ<sub>0</sub> - Δρ/ρ<sub>0</sub><sup>2</sup></span></p>
+                <p><span>(1/ρ)∇p ≈ (1/ρ<sub>0</sub>)∇Δp - (Δρ/ρ<sub>0</sub><sup>2</sup>)∇Δp</span></p>
+                <p class="drop"><span>(Δρ)∇Δp</span><small>producto de perturbaciones</small></p>
+                <p class="result"><span>∂<sub>t</sub>Δv = -(1/ρ<sub>0</sub>)∇Δp</span></p>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section id="sonido" class="section">
+          <p class="kicker">Paso 2</p>
+          <h2>El sonido es el laboratorio limpio de la restauración por presión.</h2>
+          <p>
+            La presión aumenta donde el fluido se comprime. Ese gradiente de presión
+            empuja el material en sentido contrario a la compresión. Al unir continuidad,
+            Euler linealizada y cierre barotrópico aparece la ecuación de onda:
+          </p>
+          <div class="big-equation">∂<sub>t</sub><sup>2</sup>Δρ = c<sub>s</sub><sup>2</sup>∇<sup>2</sup>Δρ</div>
+
+          <div class="algebra-card full">
+            <h3>Cómo se arma la ecuación de onda</h3>
+            <div class="calc-lines two-column">
+              <p><span>∂<sub>t</sub>Δρ + ρ<sub>0</sub>∇·Δv = 0</span></p>
+              <p><span>∂<sub>t</sub><sup>2</sup>Δρ + ρ<sub>0</sub>∇·(∂<sub>t</sub>Δv) = 0</span></p>
+              <p><span>∂<sub>t</sub>Δv = -(1/ρ<sub>0</sub>)∇Δp</span></p>
+              <p><span>∂<sub>t</sub><sup>2</sup>Δρ - ∇²Δp = 0</span></p>
+              <p><span>Δp = c<sub>s</sub><sup>2</sup>Δρ</span></p>
+              <p class="result"><span>∂<sub>t</sub><sup>2</sup>Δρ = c<sub>s</sub><sup>2</sup>∇²Δρ</span></p>
+            </div>
+            <p class="algebra-note">
+              Aquí el cierre barotrópico no es un detalle: es la regla que traduce
+              compresión en presión. Sin esa relación, todavía no hay una onda cerrada.
+            </p>
+          </div>
+
+          <figure class="interactive wide">
+            <figcaption>
+              <strong>Explora el modo plano.</strong> Cambia la longitud de onda y la velocidad del sonido.
+              La relación <span class="math">ω² = c<sub>s</sub><sup>2</sup>k²</span> siempre queda positiva.
+            </figcaption>
+            <canvas id="soundCanvas" width="1040" height="360"></canvas>
+            <div class="controls">
+              <label>
+                <span>c<sub>s</sub></span>
+                <input id="soundSpeed" type="range" min="0.6" max="2.4" step="0.05" value="1.25">
+              </label>
+              <label>
+                <span>k</span>
+                <input id="soundK" type="range" min="1" max="7" step="0.1" value="3">
+              </label>
+              <button id="resetSound" type="button">Reiniciar</button>
+            </div>
+            <p id="soundReadout" class="readout"></p>
+          </figure>
+        </section>
+
+        <section class="section image-band">
+          <p class="kicker">La imagen física</p>
+          <h2>Primero mira el movimiento: una altura produce presión, la presión produce flujo.</h2>
+          <p>
+            Una onda en un fluido no es solamente una curva que sube y baja. En cada
+            cresta hay más columna de fluido, por tanto cambia la presión hidrostática.
+            Esa diferencia de presión empuja al fluido y el movimiento vuelve a cambiar
+            la altura de la superficie o de la interfaz. Esa es la rueda física que
+            después escribimos con ecuaciones.
+          </p>
+          <div class="source-images">
+            <figure>
+              <img src="attachments/ciclo-onda-gravedad-aguas-pandas.png" alt="Ciclo fisico de una onda de gravedad en aguas someras">
+              <figcaption>
+                Lee la figura como una cadena causal: altura → gradiente de presión →
+                velocidad horizontal → nueva altura.
+              </figcaption>
+            </figure>
+            <figure>
+              <img src="attachments/onda-interfaz-propagacion-x.png" alt="Onda que se propaga en una interfaz entre dos fluidos">
+              <figcaption>
+                En una interfaz estable, el fluido denso queda abajo. La gravedad no
+                transporta la onda: actúa como fuerza restauradora.
+              </figcaption>
+            </figure>
+          </div>
+          <div class="notice">
+            <strong>Qué debes llevarte de estas figuras:</strong>
+            la matemática no empieza con <span class="math">ω</span>; empieza con una
+            pregunta mecánica: cuando la interfaz se deforma, ¿las fuerzas la devuelven
+            o la empujan más lejos del equilibrio?
+          </div>
+        </section>
+
+        <section id="parcela" class="section split">
+          <div>
+            <p class="kicker">Paso 3</p>
+            <h2>Con gravedad, el equilibrio ya no es uniforme: es hidrostático.</h2>
+            <p>
+              En un fluido estratificado, una parcela desplazada hacia arriba conserva
+              aproximadamente su relación adiabática, mientras el entorno cambia con
+              la altura. La comparación entre la densidad de la parcela y la densidad
+              del entorno decide la aceleración.
+            </p>
+            <p>
+              Esa comparación se resume en una frecuencia de flotabilidad:
+              si <span class="math">N² &gt; 0</span>, la parcela oscila alrededor del
+              equilibrio; si <span class="math">N² &lt; 0</span>, se aleja y la
+              estratificación es convectivamente inestable.
+            </p>
+            <div class="big-equation compact">d²δz/dt² = -N² δz</div>
+          </div>
+          <figure class="interactive">
+            <figcaption>
+              <strong>Parcela desplazada.</strong> Ajusta <span class="math">N²</span>:
+              positivo restaura; negativo amplifica.
+            </figcaption>
+            <canvas id="parcelCanvas" width="560" height="520"></canvas>
+            <div class="controls stacked">
+              <label>
+                <span>N²</span>
+                <input id="nSquared" type="range" min="-1.5" max="1.5" step="0.05" value="0.8">
+              </label>
+              <button id="resetParcel" type="button">Reiniciar</button>
+            </div>
+            <p id="parcelReadout" class="readout"></p>
+          </figure>
+        </section>
+
+        <section class="section">
+          <p class="kicker">Flotabilidad en cálculo</p>
+          <h2>La parcela compara su densidad con la del entorno.</h2>
+          <p>
+            El desplazamiento vertical pequeño <span class="math">δz</span> permite
+            comparar dos expansiones: cómo cambia la densidad del entorno con altura y
+            cómo cambia la densidad de la parcela si se mueve casi adiabáticamente.
+            La diferencia entre ambas produce una fuerza neta.
+          </p>
+          <div class="algebra-grid">
+            <details class="algebra-card" open>
+              <summary>Comparar entorno y parcela</summary>
+              <div class="calc-lines">
+                <p><span>ρ<sub>ent</sub>(z + δz) ≈ ρ + (dρ/dz)δz</span></p>
+                <p><span>p<sub>ent</sub>(z + δz) ≈ p + (dp/dz)δz</span></p>
+                <p><span>p/ρ<sup>γ</sup> = constante</span><small>parcela adiabática</small></p>
+                <p><span>Δρ<sub>par</sub>/ρ = (1/γ) Δp<sub>ent</sub>/p</span></p>
+                <p><span>ρ<sub>par</sub> ≈ ρ + (ρ/γp)(dp/dz)δz</span></p>
+              </div>
+            </details>
+
+            <details class="algebra-card" open>
+              <summary>De fuerza neta a frecuencia de Brunt-Väisälä</summary>
+              <div class="calc-lines">
+                <p><span>F<sub>z</sub>/V = ρ<sub>ent</sub>g - ρ<sub>par</sub>g</span></p>
+                <p><span>d²δz/dt² = g(ρ<sub>ent</sub> - ρ<sub>par</sub>)/ρ</span></p>
+                <p><span>d²δz/dt² = -N²δz</span></p>
+                <p class="result"><span>N² = -g/ρ [(dρ/dz) - (ρ/γp)(dp/dz)]</span></p>
+                <p><span>N² &gt; 0</span><small>restauración y oscilación</small></p>
+                <p><span>N² &lt; 0</span><small>aceleración en el sentido del desplazamiento</small></p>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section id="interfaz" class="section">
+          <p class="kicker">Paso 4</p>
+          <h2>En la interfaz, el signo de la misma fórmula separa onda e inestabilidad.</h2>
+          <p>
+            Para dos fluidos ideales, incompresibles e irrotacionales, la perturbación
+            de la interfaz se toma como
+            <span class="math">ξ(x,t)=A exp[i(kx-ωt)]</span>. El potencial de velocidad
+            satisface <span class="math">∇²φ=0</span> y decae lejos de la interfaz.
+            Las condiciones cinemática y dinámica llevan a:
+          </p>
+          <div class="big-equation">ω² = gk (ρ − ρ') / (ρ + ρ')</div>
+
+          <div class="algebra-card full">
+            <h3>Por qué aparece la razón (ρ − ρ')/(ρ + ρ')</h3>
+            <div class="calc-lines two-column">
+              <p><span>ξ = A exp[i(kx − ωt)]</span></p>
+              <p><span>φ = B exp(kz) exp[i(kx − ωt)]</span><small>fluido inferior</small></p>
+              <p><span>φ' = B' exp(−kz) exp[i(kx − ωt)]</span><small>fluido superior</small></p>
+              <p><span>∂<sub>t</sub>ξ = ∂<sub>z</sub>φ|<sub>0</sub> ⇒ B = −iωA/k</span></p>
+              <p><span>∂<sub>t</sub>ξ = ∂<sub>z</sub>φ'|<sub>0</sub> ⇒ B' = iωA/k</span></p>
+              <p><span>p<sub>1</sub> = −ρ∂<sub>t</sub>φ, &nbsp; p'<sub>1</sub> = −ρ'∂<sub>t</sub>φ'</span></p>
+              <p><span>p<sub>0</sub>(ξ) ≈ p<sub>0</sub>(0) − ρgξ</span></p>
+              <p><span>p'<sub>0</sub>(ξ) ≈ p'<sub>0</sub>(0) − ρ'gξ</span></p>
+              <p><span>p<sub>tot</sub>(ξ) = p'<sub>tot</sub>(ξ)</span></p>
+              <p class="result"><span>ω² = gk(ρ − ρ')/(ρ + ρ')</span></p>
+            </div>
+            <p class="algebra-note">
+              El numerador mide quién pesa más abajo que arriba. El denominador aparece
+              porque ambos fluidos deben moverse: la inercia efectiva es la suma
+              <span class="math">ρ + ρ'</span>.
+            </p>
+          </div>
+
+          <figure class="interactive wide">
+            <figcaption>
+              <strong>Invierte las densidades.</strong> La misma ondulación puede oscilar
+              o crecer según cuál fluido esté arriba.
+            </figcaption>
+            <canvas id="interfaceCanvas" width="1040" height="520"></canvas>
+            <div class="controls">
+              <label>
+                <span>ρ inferior</span>
+                <input id="rhoBottom" type="range" min="0.4" max="2.2" step="0.05" value="1.6">
+              </label>
+              <label>
+                <span>ρ superior</span>
+                <input id="rhoTop" type="range" min="0.4" max="2.2" step="0.05" value="0.8">
+              </label>
+              <label>
+                <span>k</span>
+                <input id="interfaceK" type="range" min="1" max="6" step="0.1" value="2.5">
+              </label>
+              <button id="swapFluids" type="button">Invertir</button>
+            </div>
+            <p id="interfaceReadout" class="readout"></p>
+          </figure>
+        </section>
+
+        <section class="section derivation-section">
+          <p class="kicker">Derivación guiada</p>
+          <h2>Las condiciones de frontera son donde la física entra.</h2>
+          <div class="stepper">
+            <div class="steps" role="tablist" aria-label="Pasos de derivación">
+              <button class="step active" data-step="0" type="button">1</button>
+              <button class="step" data-step="1" type="button">2</button>
+              <button class="step" data-step="2" type="button">3</button>
+              <button class="step" data-step="3" type="button">4</button>
+            </div>
+            <div id="stepText" class="step-text"></div>
+          </div>
+        </section>
+
+        <section id="cierre" class="section closing">
+          <p class="kicker">Diagnóstico final</p>
+          <h2>La pregunta no es “¿hay una sinusoidal?”, sino “¿qué hace la física con ella?”.</h2>
+          <div class="diagnostics">
+            <div>
+              <h3>ω² &gt; 0</h3>
+              <p>Frecuencia real. La perturbación oscila: sonido, parcela estable u onda de gravedad de superficie.</p>
+            </div>
+            <div>
+              <h3>ω² &lt; 0</h3>
+              <p>Frecuencia imaginaria. Una rama crece como <span class="math">e<sup>σt</sup></span>: inestabilidad.</p>
+            </div>
+            <div>
+              <h3>Límite</h3>
+              <p>El análisis lineal solo diagnostica el arranque. Cuando la amplitud crece, entran términos no lineales.</p>
+            </div>
+          </div>
+          <div class="sources">
+            <h3>Para seguir leyendo</h3>
+            <p>
+              Lautrup, <em>Physics of Continuous Matter</em>, capítulo 14 para ondas
+              sonoras de pequeña amplitud; Clarke & Carswell,
+              <em>Principles of Astrophysical Fluid Dynamics</em>, capítulo 10 para
+              flotabilidad, ondas de gravedad e inestabilidad de Rayleigh-Taylor.
+            </p>
+          </div>
+        </section>
+      </div>
+    </article>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

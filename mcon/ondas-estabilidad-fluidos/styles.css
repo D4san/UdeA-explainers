@@ -1,0 +1,657 @@
+:root {
+  color-scheme: light;
+  --bg: #f7f4ee;
+  --paper: #fffdf8;
+  --ink: #1f2522;
+  --muted: #5f6862;
+  --line: #d8d1c2;
+  --accent: #0f766e;
+  --accent-2: #c0603b;
+  --blue: #245d8f;
+  --shadow: 0 18px 60px rgba(47, 42, 35, 0.12);
+  --max: 1180px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(90deg, rgba(15, 118, 110, 0.06) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(15, 118, 110, 0.05) 1px, transparent 1px),
+    var(--bg);
+  background-size: 44px 44px;
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.62;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.75), transparent 24%),
+    radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.55), transparent 22%),
+    linear-gradient(rgba(31, 37, 34, 0.025) 1px, transparent 1px);
+  background-size: auto, auto, 100% 28px;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px clamp(18px, 4vw, 54px);
+  background: rgba(247, 244, 238, 0.88);
+  border-bottom: 1px solid rgba(31, 37, 34, 0.1);
+  backdrop-filter: blur(14px);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: radial-gradient(circle at 55% 45%, var(--accent) 0 18%, transparent 19% 100%);
+}
+
+nav {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+nav a,
+.toc a {
+  color: var(--muted);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+nav a:hover,
+.toc a:hover {
+  color: var(--accent);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+  gap: clamp(28px, 5vw, 70px);
+  align-items: center;
+  min-height: calc(100vh - 62px);
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: clamp(48px, 8vw, 92px) clamp(20px, 5vw, 70px) 42px;
+}
+
+.course,
+.kicker {
+  margin: 0 0 12px;
+  color: var(--accent);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  max-width: 780px;
+  margin-bottom: 22px;
+  font-size: clamp(46px, 7vw, 86px);
+  line-height: 0.98;
+  font-weight: 700;
+}
+
+.dek {
+  max-width: 680px;
+  color: #3c4540;
+  font-size: clamp(19px, 2.2vw, 25px);
+  line-height: 1.42;
+}
+
+.hero-visual {
+  min-height: 420px;
+  border: 1px solid rgba(31, 37, 34, 0.12);
+  background: linear-gradient(160deg, #fffefa, #eef7f5);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.hero-visual,
+.interactive,
+.derivation-panel,
+.equation,
+.stepper,
+.diagnostics > div,
+.sources,
+.source-images figure {
+  border-radius: 8px;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.article {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 46px;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 30px clamp(20px, 4vw, 44px) 90px;
+}
+
+.toc {
+  position: sticky;
+  top: 92px;
+  align-self: start;
+  display: grid;
+  gap: 11px;
+  padding-top: 8px;
+}
+
+.content {
+  min-width: 0;
+}
+
+.section {
+  padding: clamp(42px, 7vw, 78px) 0;
+  border-top: 1px solid rgba(31, 37, 34, 0.12);
+}
+
+.section:first-child {
+  border-top: 0;
+}
+
+.section > p,
+.section > h2,
+.section > .big-equation,
+.section > .equation-row {
+  max-width: 800px;
+}
+
+h2 {
+  margin-bottom: 18px;
+  font-size: clamp(31px, 4.5vw, 53px);
+  line-height: 1.08;
+}
+
+h3 {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+p {
+  color: #333b37;
+  font-size: 19px;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.72fr);
+  gap: clamp(28px, 5vw, 56px);
+  align-items: start;
+}
+
+.math {
+  white-space: nowrap;
+}
+
+.equation-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.equation,
+.derivation-panel,
+.interactive,
+.stepper,
+.diagnostics > div,
+.sources,
+.algebra-card {
+  background: rgba(255, 253, 248, 0.9);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 32px rgba(47, 42, 35, 0.08);
+}
+
+.equation {
+  padding: 20px;
+}
+
+.equation span,
+.big-equation {
+  font-family: "Times New Roman", Georgia, serif;
+  font-size: clamp(22px, 3vw, 34px);
+  line-height: 1.25;
+}
+
+.equation small {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+}
+
+.derivation-panel {
+  padding: 26px;
+}
+
+.derivation-panel ol {
+  display: grid;
+  gap: 15px;
+  margin: 0;
+  padding-left: 22px;
+}
+
+.derivation-panel li span {
+  font-size: 21px;
+}
+
+.algebra-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 26px;
+}
+
+.algebra-card {
+  padding: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.algebra-card.full {
+  max-width: 1000px;
+  margin: 28px 0;
+  padding: 24px;
+}
+
+.algebra-card summary {
+  cursor: pointer;
+  padding: 18px 22px;
+  background: rgba(15, 118, 110, 0.08);
+  border-bottom: 1px solid var(--line);
+  color: #173d3a;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.algebra-card h3 {
+  margin-bottom: 16px;
+  color: #173d3a;
+}
+
+.calc-lines {
+  display: grid;
+  gap: 10px;
+  padding: 18px 22px 22px;
+}
+
+.algebra-card.full .calc-lines {
+  padding: 0;
+}
+
+.calc-lines.two-column {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.calc-lines p {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(216, 209, 194, 0.82);
+  border-radius: 6px;
+  color: #1f2522;
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.calc-lines p span {
+  overflow-wrap: anywhere;
+}
+
+.calc-lines small {
+  color: var(--muted);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.calc-lines .drop {
+  background: rgba(192, 96, 59, 0.12);
+  border-color: rgba(192, 96, 59, 0.38);
+  color: #8b351c;
+}
+
+.calc-lines .result {
+  background: rgba(15, 118, 110, 0.12);
+  border-color: rgba(15, 118, 110, 0.42);
+  color: #0c544e;
+  font-weight: 700;
+}
+
+.algebra-note {
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  background: #fff4cf;
+  border: 1px solid #d9aa3a;
+  border-radius: 8px;
+  color: #342b18;
+  font-size: 16px;
+}
+
+.big-equation {
+  margin: 26px 0 30px;
+  padding: 22px 26px;
+  background: #173d3a;
+  color: #fffdf8;
+}
+
+.big-equation.compact {
+  display: inline-block;
+  font-size: 29px;
+}
+
+.interactive {
+  margin: 30px 0 0;
+  padding: clamp(16px, 3vw, 24px);
+}
+
+.interactive.wide {
+  max-width: 1000px;
+}
+
+.source-images {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.source-images figure {
+  margin: 0;
+  padding: 14px;
+  background: rgba(255, 253, 248, 0.92);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 32px rgba(47, 42, 35, 0.08);
+}
+
+.source-images img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
+.source-images figcaption {
+  margin: 12px 2px 0;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.notice {
+  max-width: 900px;
+  margin-top: 18px;
+  padding: 18px 20px;
+  background: #fff4cf;
+  border: 1px solid #d9aa3a;
+  border-radius: 8px;
+  color: #342b18;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.notice strong {
+  color: #1f2522;
+}
+
+figcaption {
+  max-width: 860px;
+  margin-bottom: 14px;
+  color: #3b433f;
+  font-size: 17px;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr)) auto;
+  gap: 14px;
+  align-items: end;
+  margin-top: 16px;
+}
+
+.controls.stacked {
+  grid-template-columns: 1fr auto;
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+button {
+  min-height: 42px;
+  border: 1px solid #133f3b;
+  background: #173d3a;
+  color: white;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0f2f2c;
+}
+
+.readout {
+  min-height: 30px;
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.stepper {
+  max-width: 940px;
+  margin: 30px auto 0;
+  padding: 24px;
+}
+
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.step {
+  width: 42px;
+  min-height: 42px;
+  border-color: var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+
+.step.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.step-text p {
+  margin-bottom: 8px;
+}
+
+.step-text .formula {
+  margin: 18px auto 0;
+  padding: 18px 22px;
+  max-width: 760px;
+  background: rgba(192, 96, 59, 0.09);
+  border: 1px solid rgba(192, 96, 59, 0.28);
+  border-radius: 8px;
+  color: var(--accent-2);
+  font-size: 24px;
+  text-align: center;
+}
+
+.derivation-section > h2,
+.derivation-section > .kicker {
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.step-text {
+  text-align: center;
+}
+
+.step-text h3 {
+  margin-bottom: 12px;
+  color: #173d3a;
+}
+
+.step-text p:not(.formula) {
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.diagnostics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.diagnostics > div,
+.sources {
+  padding: 22px;
+}
+
+.diagnostics p,
+.sources p {
+  margin-bottom: 0;
+  font-size: 16px;
+}
+
+.sources {
+  max-width: 900px;
+  margin-top: 18px;
+}
+
+@media (max-width: 920px) {
+  .hero,
+  .article,
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: auto;
+  }
+
+  .toc {
+    position: static;
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .equation-row,
+  .diagnostics,
+  .controls,
+  .source-images,
+  .algebra-grid,
+  .calc-lines.two-column {
+    grid-template-columns: 1fr;
+  }
+
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  h1 {
+    font-size: 42px;
+  }
+
+  p {
+    font-size: 17px;
+  }
+
+  .calc-lines p {
+    display: block;
+    font-size: 16px;
+  }
+
+  .calc-lines small {
+    display: block;
+    margin-top: 5px;
+    white-space: normal;
+  }
+
+  .hero-visual {
+    min-height: 260px;
+  }
+}
