@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hamiltoniano, Poisson y libertad de representación</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header class="article-hero">
+    <nav class="topbar" aria-label="Navegación de la explicación">
+      <a href="#legendre">Legendre</a>
+      <a href="#energia">Energía</a>
+      <a href="#evolucion">Evolución</a>
+      <a href="#poisson">Poisson</a>
+      <a href="#libre">Partícula libre</a>
+      <a href="#gauge">Gauge</a>
+    </nav>
+
+    <div class="hero-grid">
+      <div>
+        <p class="section-kicker">MECCEL · clase interactiva</p>
+        <h1>Hamiltoniano, corchetes de Poisson y libertad de representación</h1>
+        <p class="dek">Una lectura visual para distinguir energía, conservación y cambios de descripción que no cambian la física.</p>
+      </div>
+      <div class="route-panel" aria-label="Ruta conceptual">
+        <ol>
+          <li>Construir $H$ desde $L$ y $p_i$.</li>
+          <li>Preguntar cuándo $H=T+U$.</li>
+          <li>Ver por qué $\dot H=\partial H/\partial t$.</li>
+          <li>Descubrir el corchete de Poisson en $\dot f$.</li>
+          <li>Probar que $\{F,G\}$ conserva el movimiento.</li>
+          <li>Usar gauge como cierre físico.</li>
+        </ol>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section lead" id="promesa">
+      <p class="section-kicker">Promesa</p>
+      <h2>La física no está en una fórmula aislada, sino en las estructuras que dejan invariantes las ecuaciones de movimiento.</h2>
+      <p>La clase empieza con una pregunta práctica: cuando escribimos $H$, $\{F,G\}$ o $L+dF/dt$, ¿estamos cambiando la física o solo la forma de representarla?</p>
+    </section>
+
+    <section class="figure-section" id="legendre">
+      <article class="figure-copy">
+        <p class="section-kicker">1. De Lagrange a Hamilton</p>
+        <h2>El Hamiltoniano cambia el lenguaje: de velocidades a momentos.</h2>
+        <p>Partimos de $L(q,\dot q,t)$ y definimos los momentos conjugados $p_i=\partial L/\partial\dot q_i$. Con ellos se construye la transformación de Legendre.</p>
+        <details class="algebra">
+          <summary>Mostrar desarrollo de tablero</summary>
+          <div class="math-block">
+            $$
+            H(q,p,t)=\sum_i p_i\dot q_i-L(q,\dot q,t)
+            $$
+            $$
+            p_i=\frac{\partial L}{\partial\dot q_i},
+            \qquad
+            \dot q_i\longrightarrow \dot q_i(q,p,t).
+            $$
+          </div>
+          <p>La última flecha recuerda que, después de definir $p_i$, las velocidades deben reescribirse en términos de $q,p,t$.</p>
+        </details>
+      </article>
+
+      <div class="interactive-panel">
+        <div class="diagram-title">Legendre como pendiente</div>
+        <svg id="legendreSvg" viewBox="0 0 760 360" role="img" aria-label="Diagrama de cambio desde coordenadas y velocidades hacia coordenadas y momentos"></svg>
+        <div class="controls-row">
+          <label>
+            masa $m$
+            <input id="legendreMass" type="range" min="0.5" max="4" value="2" step="0.1">
+          </label>
+          <label>
+            velocidad $\dot q$
+            <input id="legendreVelocity" type="range" min="-3" max="3" value="1.2" step="0.1">
+          </label>
+        </div>
+        <p class="state-line" id="legendreState"></p>
+      </div>
+    </section>
+
+    <section class="figure-section reverse" id="energia">
+      <article class="figure-copy">
+        <p class="section-kicker">2. Hamiltoniano y energía</p>
+        <h2>$H$ coincide con energía solo bajo condiciones.</h2>
+        <p>Si $L=T-U$, si $U$ no depende de velocidades y si $T$ es cuadrática homogénea en las velocidades, aparece la igualdad familiar $H=T+U$.</p>
+        <details class="algebra" open>
+          <summary>Mostrar álgebra completa</summary>
+          <div class="math-block">
+            $$
+            p_i=\frac{\partial L}{\partial\dot q_i}
+            =
+            \frac{\partial T}{\partial\dot q_i}
+            $$
+            $$
+            \sum_i\frac{\partial T}{\partial\dot q_i}\dot q_i=2T
+            $$
+            $$
+            H=\sum_i p_i\dot q_i-L=2T-(T-U)=T+U.
+            $$
+          </div>
+        </details>
+      </article>
+
+      <div class="stepper" data-stepper="energy">
+        <div class="stepper-head">
+          <button class="icon-button" data-step-prev="energy" aria-label="Paso anterior">‹</button>
+          <div>
+            <p class="section-kicker">Stepper algebraico</p>
+            <h3 id="energyTitle"></h3>
+          </div>
+          <button class="icon-button" data-step-next="energy" aria-label="Paso siguiente">›</button>
+        </div>
+        <div id="energyEquation" class="step-equation"></div>
+        <p id="energyText" class="step-text"></p>
+        <div id="energyDots" class="step-dots" aria-label="Pasos de la derivación"></div>
+      </div>
+    </section>
+
+    <section class="figure-section" id="evolucion">
+      <article class="figure-copy">
+        <p class="section-kicker">3. Conservación de $H$</p>
+        <h2>La evolución de $H$ se reduce a su dependencia explícita en el tiempo.</h2>
+        <p>Las ecuaciones de Hamilton hacen que los términos de coordenadas y momentos se cancelen por pares. Lo que queda es $\partial H/\partial t$.</p>
+      </article>
+
+      <div class="stepper" data-stepper="hflow">
+        <div class="stepper-head">
+          <button class="icon-button" data-step-prev="hflow" aria-label="Paso anterior">‹</button>
+          <div>
+            <p class="section-kicker">Cancelación visual</p>
+            <h3 id="hflowTitle"></h3>
+          </div>
+          <button class="icon-button" data-step-next="hflow" aria-label="Paso siguiente">›</button>
+        </div>
+        <div id="hflowEquation" class="step-equation"></div>
+        <p id="hflowText" class="step-text"></p>
+        <div id="hflowDots" class="step-dots"></div>
+      </div>
+    </section>
+
+    <section class="figure-section reverse" id="poisson">
+      <article class="figure-copy">
+        <p class="section-kicker">4. Corchete de Poisson</p>
+        <h2>El corchete aparece al derivar cualquier cantidad $f(q,p,t)$.</h2>
+        <p>No se introduce como receta aislada. Aparece al reemplazar $\dot q_i$ y $\dot p_i$ con las ecuaciones canónicas.</p>
+        <details class="algebra">
+          <summary>Mostrar definición y condición de conservación</summary>
+          <div class="math-block">
+            $$
+            \{f,g\}=\sum_i\left(
+            \frac{\partial f}{\partial q_i}\frac{\partial g}{\partial p_i}
+            -
+            \frac{\partial f}{\partial p_i}\frac{\partial g}{\partial q_i}
+            \right)
+            $$
+            $$
+            \frac{df}{dt}=\{f,H\}+\frac{\partial f}{\partial t}.
+            $$
+            $$
+            \frac{df}{dt}=0
+            \quad\Longleftrightarrow\quad
+            \{f,H\}+\frac{\partial f}{\partial t}=0.
+            $$
+          </div>
+        </details>
+      </article>
+
+      <div class="interactive-panel property-panel">
+        <div class="diagram-title">Propiedades que se usan después</div>
+        <div class="property-grid">
+          <div>
+            <strong>Antisimetría</strong>
+            <span>$\{f,g\}=-\{g,f\}$</span>
+          </div>
+          <div>
+            <strong>Bilinealidad</strong>
+            <span>$\{af+bg,h\}=a\{f,h\}+b\{g,h\}$</span>
+          </div>
+          <div>
+            <strong>Regla de producto</strong>
+            <span>$\{fg,h\}=f\{g,h\}+g\{f,h\}$</span>
+          </div>
+          <div>
+            <strong>Jacobi</strong>
+            <span>$\{\{f,g\},h\}+\{\{g,h\},f\}+\{\{h,f\},g\}=0$</span>
+          </div>
+        </div>
+        <p class="state-line">La prueba del inciso b usa dos de estas ideas: derivar el corchete respecto al tiempo y cerrar con Jacobi.</p>
+      </div>
+    </section>
+
+    <section class="section" id="jacobi">
+      <p class="section-kicker">5. Inciso b</p>
+      <h2>Si $F$ y $G$ son constantes de movimiento, entonces $\{F,G\}$ también lo es.</h2>
+      <p>El punto delicado es que $F$ y $G$ pueden depender explícitamente del tiempo. Por eso no basta decir que conmutan con $H$.</p>
+
+      <div class="wide-stepper stepper" data-stepper="jacobi">
+        <div class="stepper-head">
+          <button class="icon-button" data-step-prev="jacobi" aria-label="Paso anterior">‹</button>
+          <div>
+            <p class="section-kicker">Prueba con Jacobi</p>
+            <h3 id="jacobiTitle"></h3>
+          </div>
+          <button class="icon-button" data-step-next="jacobi" aria-label="Paso siguiente">›</button>
+        </div>
+        <div id="jacobiEquation" class="step-equation"></div>
+        <p id="jacobiText" class="step-text"></p>
+        <div id="jacobiDots" class="step-dots"></div>
+      </div>
+    </section>
+
+    <section class="figure-section" id="libre">
+      <article class="figure-copy">
+        <p class="section-kicker">6. Partícula libre</p>
+        <h2>Una cantidad puede depender de $t$ y aun así ser constante.</h2>
+        <p>Para la partícula libre, $F=x-pt/m$ mide la posición inicial extrapolada. Mientras $x(t)$ avanza, el término $pt/m$ avanza con la misma rapidez.</p>
+        <details class="algebra">
+          <summary>Mostrar cálculo del corchete</summary>
+          <div class="math-block">
+            $$
+            H=\frac{p^2}{2m},
+            \qquad
+            F=x-\frac{pt}{m}
+            $$
+            $$
+            \{F,H\}
+            =
+            \frac{\partial F}{\partial x}\frac{\partial H}{\partial p}
+            -
+            \frac{\partial F}{\partial p}\frac{\partial H}{\partial x}
+            =
+            \frac{p}{m}
+            $$
+            $$
+            \frac{\partial F}{\partial t}=-\frac{p}{m},
+            \qquad
+            \frac{dF}{dt}=0.
+            $$
+          </div>
+        </details>
+      </article>
+
+      <div class="interactive-panel">
+        <div class="diagram-title">Movimiento uniforme</div>
+        <svg id="freeSvg" viewBox="0 0 760 360" role="img" aria-label="Partícula libre mostrando x(t), pt/m y F constante"></svg>
+        <div class="controls-grid">
+          <label>
+            $m$
+            <input id="freeMass" type="range" min="0.5" max="5" value="2" step="0.1">
+          </label>
+          <label>
+            $p$
+            <input id="freeMomentum" type="range" min="-4" max="4" value="2.2" step="0.1">
+          </label>
+          <label>
+            $t$
+            <input id="freeTime" type="range" min="0" max="5" value="2" step="0.05">
+          </label>
+        </div>
+        <p class="state-line" id="freeState"></p>
+      </div>
+    </section>
+
+    <section class="figure-section reverse" id="canonicas">
+      <article class="figure-copy">
+        <p class="section-kicker">7. Espacio de fase y coordenadas canónicas</p>
+        <h2>Un buen cambio de variables puede volver legible el movimiento.</h2>
+        <p>En el péndulo, el espacio de fase muestra curvas cerradas y una separatriz. En una región regular, unas coordenadas canónicas adaptadas al movimiento pueden convertir esas curvas en líneas casi planas: una acción constante y un ángulo que avanza.</p>
+        <details class="algebra">
+          <summary>Mostrar ecuaciones canónicas nuevas</summary>
+          <div class="math-block">
+            $$
+            (q,p)\longrightarrow(Q,P)
+            $$
+            $$
+            \dot Q_i=\frac{\partial K}{\partial P_i},
+            \qquad
+            \dot P_i=-\frac{\partial K}{\partial Q_i}.
+            $$
+          </div>
+          <p>Una forma de construir estos cambios es usar funciones generadoras.</p>
+        </details>
+      </article>
+
+      <div class="interactive-panel">
+        <div class="diagram-title">Retrato de fase del péndulo</div>
+        <svg id="canonicalSvg" viewBox="0 0 760 420" role="img" aria-label="Retrato de fase de un péndulo y versión aplanada en coordenadas canónicas"></svg>
+        <div class="segmented" role="group" aria-label="Tipo de cambio">
+          <button class="segment active" data-canonical="pendulum">Péndulo</button>
+          <button class="segment" data-canonical="flat">Coordenadas adaptadas</button>
+        </div>
+        <p class="state-line" id="canonicalState"></p>
+      </div>
+    </section>
+
+    <section class="section" id="total">
+      <p class="section-kicker">8. Derivada total en Lagrange</p>
+      <h2>Sumar $\frac{dF}{dt}$ cambia la descripción, no las trayectorias físicas.</h2>
+      <p>Esta libertad es el puente hacia gauge: podemos cambiar la función lagrangiana sin cambiar las ecuaciones de Euler-Lagrange.</p>
+
+      <div class="wide-stepper stepper" data-stepper="total">
+        <div class="stepper-head">
+          <button class="icon-button" data-step-prev="total" aria-label="Paso anterior">‹</button>
+          <div>
+            <p class="section-kicker">Cancelación de derivadas mixtas</p>
+            <h3 id="totalTitle"></h3>
+          </div>
+          <button class="icon-button" data-step-next="total" aria-label="Paso siguiente">›</button>
+        </div>
+        <div id="totalEquation" class="step-equation"></div>
+        <p id="totalText" class="step-text"></p>
+        <div id="totalDots" class="step-dots"></div>
+      </div>
+
+      <div class="interactive-panel total-visual">
+        <div class="diagram-title">Misma curva, otro momento conjugado</div>
+        <svg id="totalVisualSvg" viewBox="0 0 900 360" role="img" aria-label="La derivada total no cambia la curva q(t), pero desplaza el momento conjugado en espacio de fase"></svg>
+        <div class="controls-row">
+          <label>
+            intensidad de $F(q)$
+            <input id="totalAlpha" type="range" min="-2" max="2" value="1" step="0.1">
+          </label>
+          <p class="state-line" id="totalVisualState"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="figure-section" id="gauge">
+      <article class="figure-copy">
+        <p class="section-kicker">9. Gauge electromagnético</p>
+        <h2>Cambian los potenciales; no cambian los campos ni el movimiento.</h2>
+        <p>El lagrangiano electromagnético usa potenciales. Una transformación gauge cambia esos potenciales, pero solo agrega una derivada total a $L$.</p>
+        <details class="algebra">
+          <summary>Mostrar cálculo gauge</summary>
+          <div class="math-block">
+            $$
+            L=\frac12 mv^2-q\phi+\frac{q}{c}\mathbf A\cdot\mathbf v
+            $$
+            $$
+            \mathbf A'=\mathbf A+\nabla\psi,
+            \qquad
+            \phi'=\phi-\frac1c\frac{\partial\psi}{\partial t}
+            $$
+            $$
+            L'=L+\frac{q}{c}\left(\frac{\partial\psi}{\partial t}+\nabla\psi\cdot\mathbf v\right)
+            =
+            L+\frac{d}{dt}\left(\frac{q}{c}\psi\right).
+            $$
+          </div>
+        </details>
+      </article>
+
+      <div class="interactive-panel">
+        <div class="diagram-title">Gauge: campos, potenciales y fase</div>
+        <svg id="gaugeSvg" viewBox="0 0 760 420" role="img" aria-label="Diagrama que compara potenciales, campos, lagrangiano y movimiento bajo gauge"></svg>
+        <div class="controls-row">
+          <button class="text-button" id="gaugeToggle">Activar gauge</button>
+          <button class="text-button subtle" id="gaugeReset">Reset</button>
+        </div>
+        <p class="state-line" id="gaugeState"></p>
+      </div>
+    </section>
+
+    <section class="section checks" id="chequeo">
+      <p class="section-kicker">Cierre</p>
+      <h2>Tres chequeos conceptuales.</h2>
+      <details>
+        <summary>1. ¿Que $H$ sea energía implica que se conserve?</summary>
+        <p>No. Si $H=E$, la conservación requiere además $\partial H/\partial t=0$.</p>
+      </details>
+      <details>
+        <summary>2. ¿Una constante de movimiento debe tener $\partial f/\partial t=0$?</summary>
+        <p>No. Puede depender explícitamente del tiempo si $\{f,H\}$ cancela esa dependencia.</p>
+      </details>
+      <details>
+        <summary>3. ¿Gauge cambia la trayectoria?</summary>
+        <p>No. Cambia potenciales y momento canónico, pero no cambia $\mathbf E$, $\mathbf B$ ni $m\mathbf v$.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

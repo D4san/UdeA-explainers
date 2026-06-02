@@ -9,11 +9,13 @@ La guía de trabajo del repositorio está en [`AGENTS.md`](AGENTS.md). Ahí se f
 ### Mecánica Celeste
 
 - [Funcionales, accion y Euler-Lagrange](meccel/funcionales-euler-lagrange/index.html)
+- [Hamiltoniano, corchetes de Poisson y libertad de representacion](meccel/hamiltoniano-poisson-gauge/index.html)
 
 ### Mecánica de Medios Continuos
 
 - [Funcion de corriente alrededor de un cilindro](mcon/funcion-corriente-cilindro/index.html)
 - [Solucion computacional de solidos elasticos](mcon/solidos-elasticos-computacional/index.html)
+- [Ondas, flotabilidad e inestabilidad](mcon/ondas-estabilidad-fluidos/index.html)
 
 ## Estructura sugerida
 
