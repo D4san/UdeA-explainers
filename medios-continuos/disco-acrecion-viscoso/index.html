@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Derivación interactiva de la evolución viscosa de un disco de acreción desde Navier-Stokes.">
+  <title>Evolución viscosa de un disco de acreción</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../../" class="brand">UdeA explainers</a>
+    <nav aria-label="Secciones del artículo">
+      <a href="#navier">Navier–Stokes</a>
+      <a href="#continuidad">Continuidad</a>
+      <a href="#torque">Torque</a>
+      <a href="#evolucion">Evolución</a>
+      <a href="#simulacion">Simulación</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <header class="article-header">
+      <p class="course">Mecánica de Medios Continuos</p>
+      <h1>¿Cómo convierte la viscosidad una colección de órbitas en un disco que evoluciona?</h1>
+      <p class="dek">
+        Partimos de Navier–Stokes, construimos el balance de momento angular y terminamos
+        observando cómo un anillo estrecho se abre: la masa migra principalmente hacia dentro
+        mientras el momento angular viaja hacia fuera.
+      </p>
+      <div class="promise">
+        <strong>Objetivo.</strong> Obtener una ecuación cerrada para la cantidad que queremos
+        predecir: la densidad superficial $\Sigma(R,t)$.
+      </div>
+    </header>
+
+    <section class="wide hero-figure">
+      <div>
+        <p class="kicker">El objeto mínimo</p>
+        <h2>Un disco delgado hecho de anillos vecinos</h2>
+        <p>
+          Cada anillo orbita casi circularmente. El movimiento rápido es azimutal,
+          $v_\phi=R\Omega$; la evolución lenta ocurre mediante una pequeña velocidad radial
+          $u_R$. La pregunta no es por qué el gas orbita, sino qué puede cambiar su momento
+          angular y permitirle abandonar esa órbita.
+        </p>
+      </div>
+      <svg id="overviewSvg" viewBox="0 0 920 470" role="img" aria-label="Disco de acreción formado por anillos">
+        <defs>
+          <radialGradient id="diskGlow">
+            <stop offset="0" stop-color="#f2b84b" stop-opacity=".95"/>
+            <stop offset=".22" stop-color="#d76538" stop-opacity=".6"/>
+            <stop offset="1" stop-color="#246c86" stop-opacity=".08"/>
+          </radialGradient>
+          <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#246c86"/></marker>
+          <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#b94f3c"/></marker>
+        </defs>
+        <ellipse cx="455" cy="236" rx="330" ry="154" fill="url(#diskGlow)"/>
+        <g fill="none" stroke="#33748b" opacity=".7">
+          <ellipse cx="455" cy="236" rx="110" ry="52"/>
+          <ellipse cx="455" cy="236" rx="178" ry="84"/>
+          <ellipse cx="455" cy="236" rx="250" ry="117"/>
+          <ellipse cx="455" cy="236" rx="320" ry="150"/>
+        </g>
+        <circle cx="455" cy="236" r="29" fill="#162727"/>
+        <circle cx="455" cy="236" r="13" fill="#f2b84b"/>
+        <path d="M278 177 C250 137 284 111 330 118" fill="none" stroke="#b94f3c" stroke-width="5" marker-end="url(#arrowRed)"/>
+        <path d="M662 305 C704 328 724 300 716 269" fill="none" stroke="#246c86" stroke-width="5" marker-end="url(#arrowBlue)"/>
+        <text x="150" y="96">masa pierde $j$ y migra hacia dentro</text>
+        <text x="594" y="370">momento angular hacia fuera</text>
+        <text x="478" y="218">masa central</text>
+      </svg>
+    </section>
+
+    <section class="section-grid" id="modelo">
+      <aside class="side-note">
+        <strong>Hipótesis.</strong> Disco delgado, axisimétrico, fluido newtoniano,
+        gravedad central dominante y transporte representado por una viscosidad efectiva $\nu$.
+      </aside>
+      <article>
+        <p class="kicker">Diccionario mínimo</p>
+        <h2>Antes de derivar, fijemos qué significa cada símbolo</h2>
+        <dl class="symbol-grid">
+          <div><dt>$\rho(R,z,t)$</dt><dd>densidad volumétrica</dd></div>
+          <div><dt>$\Sigma(R,t)$</dt><dd>masa por unidad de área del disco</dd></div>
+          <div><dt>$u_R$</dt><dd>velocidad radial; negativa hacia el centro</dd></div>
+          <div><dt>$v_\phi=R\Omega$</dt><dd>velocidad orbital azimutal</dd></div>
+          <div><dt>$j=Rv_\phi$</dt><dd>momento angular específico</dd></div>
+          <div><dt>$G(R)$</dt><dd>torque viscoso que atraviesa un cilindro</dd></div>
+        </dl>
+        <p>La velocidad se aproxima mediante</p>
+        <div class="equation">$$\mathbf v\approx u_R(R,t)\,\hat{\mathbf e}_R+R\Omega(R,t)\,\hat{\mathbf e}_\phi.$$</div>
+        <p>
+          La componente radial de Navier–Stokes sostiene la órbita. Nosotros seguiremos la
+          componente azimutal, porque es la que puede cambiar el giro.
+        </p>
+      </article>
+    </section>
+
+    <section class="wide interactive" id="navier">
+      <div class="figure-copy">
+        <p class="kicker">Interacción 1 · Navier–Stokes a momento angular</p>
+        <h2>Multiplicar por $R$ convierte momentum azimutal en momento angular</h2>
+        <p>
+          Selecciona un término. El diagrama muestra su papel geométrico; debajo aparece
+          exactamente cómo participa en la identidad $Ra_\phi=Dj/Dt$.
+        </p>
+      </div>
+      <div class="term-layout">
+        <div class="term-controls" role="group" aria-label="Términos de la aceleración azimutal">
+          <button class="term-button active" data-term="local">Cambio local</button>
+          <button class="term-button" data-term="radial">Advección radial</button>
+          <button class="term-button" data-term="vertical">Advección vertical</button>
+          <button class="term-button" data-term="geometry">Geometría cilíndrica</button>
+        </div>
+        <svg id="navierSvg" viewBox="0 0 620 400" role="img" aria-label="Componentes de velocidad de una parcela en un disco">
+          <circle cx="300" cy="205" r="35" fill="#f2b84b"/>
+          <circle cx="300" cy="205" r="130" fill="none" stroke="#9fb0aa" stroke-dasharray="7 8"/>
+          <circle cx="300" cy="205" r="188" fill="none" stroke="#d6ddd7"/>
+          <circle id="parcel" cx="430" cy="205" r="15" fill="#b94f3c"/>
+          <path id="phiArrow" d="M430 205 C430 155 409 127 374 105" fill="none" stroke="#b94f3c" stroke-width="5"/>
+          <path id="radialArrow" d="M430 205 L355 205" fill="none" stroke="#246c86" stroke-width="5"/>
+          <path id="verticalArrow" d="M430 205 L430 115" fill="none" stroke="#65866d" stroke-width="5"/>
+          <text x="446" y="151">vφ</text>
+          <text x="372" y="195">uR</text>
+          <text x="442" y="112">uz</text>
+          <text x="334" y="232">R</text>
+        </svg>
+        <div class="term-readout">
+          <h3 id="termTitle">Cambio local</h3>
+          <div id="termMath" class="equation compact">$$R\frac{\partial v_\phi}{\partial t}=\frac{\partial(Rv_\phi)}{\partial t}.$$</div>
+          <p id="termText">Mide cómo cambia el giro en un punto fijo del disco.</p>
+        </div>
+      </div>
+      <div class="algebra-flow">
+        <p>La aceleración azimutal axisimétrica completa es</p>
+        <div class="equation">$$a_\phi=\frac{\partial v_\phi}{\partial t}+u_R\frac{\partial v_\phi}{\partial R}+u_z\frac{\partial v_\phi}{\partial z}+\frac{u_Rv_\phi}{R}.$$</div>
+        <p>Multiplicamos por el brazo de palanca:</p>
+        <div class="equation">
+          $$Ra_\phi=
+          R\frac{\partial v_\phi}{\partial t}
+          +Ru_R\frac{\partial v_\phi}{\partial R}
+          +Ru_z\frac{\partial v_\phi}{\partial z}
+          +u_Rv_\phi.$$
+        </div>
+        <p>Agrupamos los dos términos radiales usando la regla del producto:</p>
+        <div class="equation">
+          $$Ru_R\frac{\partial v_\phi}{\partial R}+u_Rv_\phi
+          =u_R\frac{\partial(Rv_\phi)}{\partial R}.$$
+        </div>
+        <div class="equation highlight">
+          $$\boxed{Ra_\phi=
+          \frac{\partial(Rv_\phi)}{\partial t}
+          +u_R\frac{\partial(Rv_\phi)}{\partial R}
+          +u_z\frac{\partial(Rv_\phi)}{\partial z}
+          =\frac{Dj}{Dt}.}$$
+        </div>
+      </div>
+    </section>
+
+    <section class="section-grid" id="continuidad">
+      <aside class="side-note">
+        <strong>Pregunta.</strong> Queremos una ecuación para $\Sigma(R,t)$, no para toda la
+        estructura tridimensional $\rho(R,z,t)$.
+      </aside>
+      <article>
+        <p class="kicker">Reducción vertical</p>
+        <h2>Continuidad nos dice cómo cambia la masa de cada anillo</h2>
+        <p>La conservación tridimensional de masa es</p>
+        <div class="equation">$$\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\mathbf v)=0.$$</div>
+        <p>En coordenadas cilíndricas y bajo axisimetría:</p>
+        <div class="equation">
+          $$\frac{\partial\rho}{\partial t}
+          +\frac1R\frac{\partial}{\partial R}(R\rho u_R)
+          +\frac{\partial}{\partial z}(\rho u_z)=0.$$
+        </div>
+        <p>Integramos verticalmente y definimos promedios ponderados por masa:</p>
+        <div class="equation">
+          $$\Sigma=\int_{-\infty}^{\infty}\rho\,dz,\qquad
+          \Sigma u_R=\int_{-\infty}^{\infty}\rho u_R\,dz.$$
+        </div>
+        <p>Si no escapa masa por arriba ni por abajo, $[\rho u_z]_{-\infty}^{\infty}=0$, y queda</p>
+        <div class="equation highlight">
+          $$\boxed{\frac{\partial\Sigma}{\partial t}
+          +\frac1R\frac{\partial}{\partial R}(R\Sigma u_R)=0.}$$
+        </div>
+        <h3>¿Por qué el flujo total es $2\pi R\Sigma u_R$?</h3>
+        <p>
+          En un tiempo $dt$, la circunferencia $2\pi R$ barre radialmente una franja de ancho
+          $u_R\,dt$. Su área es $(2\pi R)(u_R\,dt)$; al multiplicar por $\Sigma$ y dividir por
+          $dt$ obtenemos
+        </p>
+        <div class="equation">$$F_M(R)=2\pi R\Sigma u_R,\qquad \dot M\equiv-F_M=-2\pi R\Sigma u_R.$$</div>
+      </article>
+    </section>
+
+    <section class="wide interactive" id="torque">
+      <div class="figure-copy">
+        <p class="kicker">Interacción 2 · Cizalla a torque</p>
+        <h2>La viscosidad responde a diferencias de velocidad angular</h2>
+        <p>
+          Cambia el exponente $q$ en $\Omega\propto R^{-q}$. El caso $q=0$ es cuerpo rígido:
+          no hay cizalla. El caso $q=3/2$ es kepleriano.
+        </p>
+      </div>
+      <div class="controls">
+        <label>Exponente $q$
+          <input id="qControl" type="range" min="-0.5" max="2.5" step="0.05" value="1.5">
+          <output id="qValue">1.50</output>
+        </label>
+        <button id="qRigid" type="button">Cuerpo rígido</button>
+        <button id="qKepler" type="button">Kepleriano</button>
+      </div>
+      <div class="linked-panels">
+        <canvas id="ringCanvas" width="760" height="460" aria-label="Anillos vecinos y transporte de momento angular"></canvas>
+        <div class="readout-panel">
+          <p id="rotationState"></p>
+          <div class="equation compact" id="omegaEquation">$$\Omega=R^{-3/2}.$$</div>
+          <dl>
+            <div><dt>$d\Omega/dR$</dt><dd id="omegaGradient"></dd></div>
+            <div><dt>$\sigma_{R\phi}$</dt><dd id="stressValue"></dd></div>
+            <div><dt>$G$</dt><dd id="torqueValue"></dd></div>
+          </dl>
+        </div>
+      </div>
+      <div class="algebra-flow">
+        <p>Para $v_\phi=R\Omega(R)$, el esfuerzo newtoniano relevante es</p>
+        <div class="equation">
+          $$\sigma_{R\phi}
+          =\eta\left(\frac{\partial v_\phi}{\partial R}-\frac{v_\phi}{R}\right)
+          =\eta\left(\Omega+R\frac{d\Omega}{dR}-\Omega\right)
+          =\boxed{\eta R\frac{d\Omega}{dR}}.$$
+        </div>
+        <p>
+          Sobre un elemento cilíndrico, $dA=R\,d\phi\,dz$. La fuerza tangencial es
+          $\sigma_{R\phi}dA$ y su brazo es $R$:
+        </p>
+        <div class="equation">
+          $$G(R)=\int R\,\sigma_{R\phi}\,dA
+          =2\pi R^2\int\sigma_{R\phi}\,dz
+          =\boxed{2\pi\nu\Sigma R^3\frac{d\Omega}{dR}}.$$
+        </div>
+        <div class="notice">
+          <strong>No confundas dos preguntas.</strong> El signo de $G$ indica el sentido del
+          transporte viscoso entre vecinos. El signo de $\partial G/\partial R$ indica si un
+          anillo concreto gana o pierde momento angular.
+        </div>
+      </div>
+    </section>
+
+    <section class="wide interactive" id="balance">
+      <div class="figure-copy">
+        <p class="kicker">Interacción 3 · Contabilidad del anillo</p>
+        <h2>Solo una diferencia entre fronteras cambia lo almacenado</h2>
+        <p>
+          Alterna la cantidad conservada y compara torques iguales con torques diferentes.
+          El balance integral y la ecuación local cuentan exactamente la misma historia.
+        </p>
+      </div>
+      <div class="controls balance-controls">
+        <label>Contabilidad
+          <select id="balanceKind">
+            <option value="mass">Masa</option>
+            <option value="angular">Momento angular</option>
+          </select>
+        </label>
+        <label>Diferencia entre fronteras
+          <input id="imbalanceControl" type="range" min="-1" max="1" step="0.05" value="0.55">
+          <output id="imbalanceValue">+0.55</output>
+        </label>
+        <button id="balanceEqual" type="button">Igualar fronteras</button>
+      </div>
+      <canvas id="balanceCanvas" width="1100" height="440" aria-label="Balance sobre un anillo diferencial"></canvas>
+      <p id="balanceCaption" class="caption"></p>
+    </section>
+
+    <section class="section-grid" id="momentum">
+      <aside class="side-note">
+        <strong>Puente formal.</strong> La ecuación de momento angular no es una ley nueva:
+        es la componente azimutal de Navier–Stokes multiplicada por $R$ e integrada en $z$.
+      </aside>
+      <article>
+        <p class="kicker">Navier–Stokes en forma conservativa</p>
+        <h2>El gas transporta $j$ y los esfuerzos transmiten torque</h2>
+        <p>Al combinar $Ra_\phi=Dj/Dt$ con continuidad:</p>
+        <div class="equation">
+          $$\frac{\partial(\rho j)}{\partial t}
+          +\frac1R\frac{\partial}{\partial R}(R\rho u_Rj)
+          +\frac{\partial}{\partial z}(\rho u_zj)
+          =
+          \frac1R\frac{\partial}{\partial R}(R^2\sigma_{R\phi})
+          +\frac{\partial}{\partial z}(R\sigma_{z\phi}).$$
+        </div>
+        <p>
+          Integramos en $z$, usamos $\Sigma j=\int\rho j\,dz$ y suponemos que no escapa
+          momento angular verticalmente:
+        </p>
+        <div class="equation">
+          $$\frac{\partial(\Sigma j)}{\partial t}
+          +\frac1R\frac{\partial}{\partial R}(R\Sigma u_Rj)
+          =
+          \frac1R\frac{\partial}{\partial R}
+          \left(R^2\int\sigma_{R\phi}\,dz\right).$$
+        </div>
+        <p>Como $G=2\pi R^2\int\sigma_{R\phi}\,dz$:</p>
+        <div class="equation highlight">
+          $$\boxed{\frac{\partial(\Sigma j)}{\partial t}
+          +\frac1R\frac{\partial}{\partial R}(R\Sigma u_Rj)
+          =\frac{1}{2\pi R}\frac{\partial G}{\partial R}.}$$
+        </div>
+
+        <h3>La misma ecuación como balance sobre $[R,R+dR]$</h3>
+        <div class="calc-lines">
+          <p><span>Momento almacenado:</span> $dJ=(2\pi R\,dR)\Sigma j$</p>
+          <p><span>Flujo advectivo:</span> $F_{J,\mathrm{adv}}=(2\pi R\Sigma u_R)j$</p>
+          <p><span>Torque neto:</span> $G(R+dR)-G(R)\simeq(\partial G/\partial R)dR$</p>
+          <p class="result">$\partial_t(dJ)=F_J(R)-F_J(R+dR)+G(R+dR)-G(R)$</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section-grid" id="evolucion">
+      <aside class="side-note">
+        <strong>La meta.</strong> Eliminar $u_R$ para obtener una sola ecuación para
+        $\Sigma(R,t)$.
+      </aside>
+      <article>
+        <p class="kicker">Cerrar el sistema</p>
+        <h2>Continuidad más momento angular producen la película del disco</h2>
+        <p>Partimos de las dos ecuaciones:</p>
+        <div class="equation">
+          $$\frac{\partial\Sigma}{\partial t}
+          +\frac1R\frac{\partial}{\partial R}(R\Sigma u_R)=0,$$
+          $$\frac{\partial(\Sigma j)}{\partial t}
+          +\frac1R\frac{\partial}{\partial R}(R\Sigma u_Rj)
+          =\frac{1}{2\pi R}\frac{\partial G}{\partial R}.$$
+        </div>
+        <p>Restamos $j$ veces continuidad. Como $j=j(R)$:</p>
+        <div class="equation">
+          $$\frac{\partial(\Sigma j)}{\partial t}-j\frac{\partial\Sigma}{\partial t}=0,$$
+          $$\frac1R\left[
+          \frac{\partial(R\Sigma u_Rj)}{\partial R}
+          -j\frac{\partial(R\Sigma u_R)}{\partial R}\right]
+          =\Sigma u_R\frac{dj}{dR}.$$
+        </div>
+        <div class="equation highlight">
+          $$\boxed{\Sigma u_R\frac{dj}{dR}
+          =\frac{1}{2\pi R}\frac{\partial G}{\partial R}.}$$
+        </div>
+        <p>Para un disco kepleriano:</p>
+        <div class="equation">
+          $$\Omega=(GM)^{1/2}R^{-3/2},\qquad
+          j=R^2\Omega=(GMR)^{1/2},\qquad
+          \frac{dj}{dR}=\frac{j}{2R},$$
+          $$G=2\pi\nu\Sigma R^3\left(-\frac32\frac{\Omega}{R}\right)
+          =-3\pi\nu\Sigma j.$$
+        </div>
+        <p>Sustituimos y despejamos:</p>
+        <div class="equation">
+          $$\Sigma u_R\frac{j}{2R}
+          =-\frac{3}{2R}\frac{\partial(\nu\Sigma j)}{\partial R},$$
+          $$\boxed{u_R=-\frac{3}{\Sigma R^{1/2}}
+          \frac{\partial}{\partial R}\left(\nu\Sigma R^{1/2}\right).}$$
+        </div>
+        <p>Finalmente introducimos $u_R$ en continuidad:</p>
+        <div class="equation final">
+          $$\boxed{\frac{\partial\Sigma}{\partial t}
+          =\frac3R\frac{\partial}{\partial R}
+          \left[R^{1/2}\frac{\partial}{\partial R}
+          \left(\nu\Sigma R^{1/2}\right)\right].}$$
+        </div>
+        <p>
+          Esta ecuación es difusiva: una acumulación radial estrecha no permanece estrecha.
+          Pero, a diferencia de difusión cartesiana simple, los factores de $R$ recuerdan que
+          el disco debe conservar y redistribuir momento angular.
+        </p>
+      </article>
+    </section>
+
+    <section class="wide simulation" id="simulacion">
+      <div class="figure-copy">
+        <p class="kicker">Interacción 4 · Simulación numérica real</p>
+        <h2>Observa cómo un anillo se convierte en un disco extendido</h2>
+        <p>
+          La simulación integra la ecuación viscosa en variables adimensionales
+          $GM=R_0=M_{\rm disco}=1$. El borde interior permite acreción; el exterior no deja
+          escapar masa.
+        </p>
+      </div>
+      <div class="sim-controls controls">
+        <label>Viscosidad $\nu$
+          <input id="nuControl" type="range" min="0" max="0.025" step="0.001" value="0.010">
+          <output id="nuValue">0.010</output>
+        </label>
+        <label>Anchura inicial
+          <input id="widthControl" type="range" min="0.06" max="0.28" step="0.01" value="0.12">
+          <output id="widthValue">0.12</output>
+        </label>
+        <label>Velocidad
+          <input id="speedControl" type="range" min="1" max="10" step="1" value="4">
+          <output id="speedValue">4×</output>
+        </label>
+        <div class="button-row">
+          <button id="playButton" type="button">Reproducir</button>
+          <button id="stepButton" type="button">Avanzar</button>
+          <button id="resetSimulation" type="button">Reiniciar</button>
+        </div>
+      </div>
+      <div class="metrics" aria-live="polite">
+        <div><span>tiempo</span><strong id="timeMetric">0.000</strong></div>
+        <div><span>masa en disco</span><strong id="massMetric">1.0000</strong></div>
+        <div><span>masa acretada</span><strong id="accretedMetric">0.0000</strong></div>
+        <div><span>momento angular</span><strong id="angularMetric">1.0000</strong></div>
+      </div>
+      <div class="simulation-grid">
+        <figure>
+          <canvas id="diskCanvas" width="620" height="620" aria-label="Vista superior de la densidad superficial del disco"></canvas>
+          <figcaption>Vista superior. El brillo representa $\Sigma(R,t)$.</figcaption>
+        </figure>
+        <figure>
+          <canvas id="profileCanvas" width="820" height="420" aria-label="Perfil radial de densidad superficial"></canvas>
+          <figcaption>Perfil radial. La curva tenue conserva el estado inicial como referencia.</figcaption>
+        </figure>
+        <figure>
+          <canvas id="velocityCanvas" width="820" height="360" aria-label="Perfil radial de velocidad radial"></canvas>
+          <figcaption>$u_R&lt;0$ indica acreción; $u_R&gt;0$ indica expansión. La curva se desvanece donde casi no hay masa.</figcaption>
+        </figure>
+        <figure>
+          <canvas id="torqueCanvas" width="820" height="360" aria-label="Perfil radial del torque viscoso"></canvas>
+          <figcaption>Torque firmado $G=-3\pi\nu\Sigma\sqrt R$.</figcaption>
+        </figure>
+      </div>
+      <p id="simulationCaption" class="caption notice"></p>
+    </section>
+
+    <section class="section-grid" id="lectura">
+      <aside class="side-note">
+        <strong>Escala viscosa.</strong> $t_\nu\sim R^2/\nu$: aumentar $\nu$ no cambia la
+        lógica de la película, pero hace que ocurra más rápido.
+      </aside>
+      <article>
+        <p class="kicker">Interpretación</p>
+        <h2>El disco no cae como un bloque</h2>
+        <p>
+          En el flanco interior de una cresta de $\nu\Sigma R^{1/2}$, la derivada es positiva
+          y $u_R&lt;0$: el gas pierde momento angular y migra hacia dentro. En el flanco exterior,
+          la derivada es negativa y $u_R&gt;0$: una fracción menor gana momento angular y se
+          desplaza hacia radios grandes.
+        </p>
+        <div class="equation">
+          $$\boxed{\text{masa principalmente hacia dentro}
+          \qquad\text{y}\qquad
+          \text{momento angular principalmente hacia fuera}.}$$
+        </div>
+        <p>
+          La viscosidad molecular suele ser demasiado pequeña para producir acreción observable.
+          En discos reales, $\nu$ representa transporte efectivo asociado a procesos colectivos,
+          frecuentemente magnetohidrodinámicos.
+        </p>
+      </article>
+    </section>
+
+    <section class="wide checks">
+      <p class="kicker">Chequeos de salida</p>
+      <h2>¿Puedes leer ahora la ecuación?</h2>
+      <ol>
+        <li>Si $\Omega$ es constante, ¿por qué desaparecen esfuerzo y torque?</li>
+        <li>¿Por qué $G&lt;0$ no basta para decidir si un anillo específico migra hacia dentro?</li>
+        <li>¿Por qué continuidad por sí sola no permite calcular $u_R$?</li>
+        <li>¿Cómo puede conservarse momento angular total mientras se disipa energía?</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <h2>Fuentes y límites</h2>
+    <p>
+      Desarrollo basado en Clarke &amp; Carswell, <em>Principles of Astrophysical Fluid Dynamics</em>,
+      capítulo 12, y en el guion de clase de Hidrodinámica viscosa en sistemas rotantes.
+    </p>
+    <p>
+      El modelo es delgado, axisimétrico, kepleriano y adimensional. No incluye estructura vertical
+      detallada, relatividad, campos magnéticos explícitos ni una teoría microscópica para $\nu$.
+    </p>
+    <a href="../../">Volver al índice de UdeA explainers</a>
+  </footer>
+</body>
+</html>

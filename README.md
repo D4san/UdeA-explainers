@@ -16,6 +16,7 @@ La guía de trabajo del repositorio está en [`AGENTS.md`](AGENTS.md). Ahí se f
 - [Funcion de corriente alrededor de un cilindro](mcon/funcion-corriente-cilindro/index.html)
 - [Solucion computacional de solidos elasticos](mcon/solidos-elasticos-computacional/index.html)
 - [Ondas, flotabilidad e inestabilidad](mcon/ondas-estabilidad-fluidos/index.html)
+- [Evolucion viscosa de un disco de acrecion](medios-continuos/disco-acrecion-viscoso/index.html)
 
 ## Estructura sugerida
 
