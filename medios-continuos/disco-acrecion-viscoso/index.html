@@ -54,31 +54,20 @@
           angular y permitirle abandonar esa órbita.
         </p>
       </div>
-      <svg id="overviewSvg" viewBox="0 0 920 470" role="img" aria-label="Disco de acreción formado por anillos">
-        <defs>
-          <radialGradient id="diskGlow">
-            <stop offset="0" stop-color="#f2b84b" stop-opacity=".95"/>
-            <stop offset=".22" stop-color="#d76538" stop-opacity=".6"/>
-            <stop offset="1" stop-color="#246c86" stop-opacity=".08"/>
-          </radialGradient>
-          <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#246c86"/></marker>
-          <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#b94f3c"/></marker>
-        </defs>
-        <ellipse cx="455" cy="236" rx="330" ry="154" fill="url(#diskGlow)"/>
-        <g fill="none" stroke="#33748b" opacity=".7">
-          <ellipse cx="455" cy="236" rx="110" ry="52"/>
-          <ellipse cx="455" cy="236" rx="178" ry="84"/>
-          <ellipse cx="455" cy="236" rx="250" ry="117"/>
-          <ellipse cx="455" cy="236" rx="320" ry="150"/>
-        </g>
-        <circle cx="455" cy="236" r="29" fill="#162727"/>
-        <circle cx="455" cy="236" r="13" fill="#f2b84b"/>
-        <path d="M278 177 C250 137 284 111 330 118" fill="none" stroke="#b94f3c" stroke-width="5" marker-end="url(#arrowRed)"/>
-        <path d="M662 305 C704 328 724 300 716 269" fill="none" stroke="#246c86" stroke-width="5" marker-end="url(#arrowBlue)"/>
-        <text x="150" y="96">masa pierde $j$ y migra hacia dentro</text>
-        <text x="594" y="370">momento angular hacia fuera</text>
-        <text x="478" y="218">masa central</text>
-      </svg>
+      <div class="overview-stage">
+        <canvas id="overviewCanvas" width="920" height="470" aria-label="Animación explicativa de órbita, torque y migración radial"></canvas>
+        <div class="diagram-legend" aria-label="Convención visual">
+          <span class="orbit-key">órbita</span><span class="in-key">masa hacia dentro</span>
+          <span class="out-key">momento angular hacia fuera</span><span class="torque-key">torque viscoso</span>
+        </div>
+        <div class="overview-controls">
+          <button type="button" data-overview-phase="0" class="active">1. Órbita</button>
+          <button type="button" data-overview-phase="1">2. Intercambio de $j$</button>
+          <button type="button" data-overview-phase="2">3. Evolución</button>
+          <button type="button" id="overviewPlay">Pausar</button>
+        </div>
+        <p id="overviewCaption" class="caption"></p>
+      </div>
     </section>
 
     <section class="section-grid" id="modelo">
@@ -231,6 +220,10 @@
             <div><dt>$G$</dt><dd id="torqueValue"></dd></div>
           </dl>
         </div>
+      </div>
+      <div class="diagram-legend">
+        <span class="orbit-key">movimiento orbital</span><span class="torque-key">torque sobre cada anillo</span>
+        <span class="out-key">transporte neto de $j$</span>
       </div>
       <div class="algebra-flow">
         <p>Para $v_\phi=R\Omega(R)$, el esfuerzo newtoniano relevante es</p>
@@ -420,6 +413,11 @@
         <div><span>masa en disco</span><strong id="massMetric">1.0000</strong></div>
         <div><span>masa acretada</span><strong id="accretedMetric">0.0000</strong></div>
         <div><span>momento angular</span><strong id="angularMetric">1.0000</strong></div>
+      </div>
+      <div class="diagram-legend">
+        <span class="in-key">$u_R&lt;0$: masa hacia dentro</span>
+        <span class="out-key">$u_R&gt;0$: masa hacia fuera</span>
+        <span class="torque-key">torque viscoso</span>
       </div>
       <div class="simulation-grid">
         <figure>

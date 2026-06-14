@@ -117,6 +117,15 @@ p { margin: 16px 0; }
 }
 .hero-figure svg { width: 100%; min-width: 0; }
 .hero-figure text { fill: var(--ink); font-size: 15px; font-family: Inter, sans-serif; }
+.overview-stage { min-width: 0; }
+.overview-controls { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+.overview-controls button { min-height: 36px; padding: 7px 10px; background: white; color: var(--teal); }
+.overview-controls button.active, .overview-controls button:last-child { background: var(--teal); color: white; }
+.diagram-legend { display: flex; flex-wrap: wrap; gap: 9px 18px; margin: 12px 0; color: var(--muted); font-size: .86rem; }
+.diagram-legend span::before { content: ""; display: inline-block; width: 25px; height: 4px; margin: 0 7px 3px 0; border-radius: 3px; background: #394947; }
+.diagram-legend .in-key::before { background: #b94f3c; }
+.diagram-legend .out-key::before { background: #246c86; }
+.diagram-legend .torque-key::before { background: #b98224; }
 
 .symbol-grid {
   display: grid;

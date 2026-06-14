@@ -56,6 +56,69 @@ function axes(ctx, canvas, xLabel, yLabel, zeroFraction = .82) {
   return { left, right, top, bottom };
 }
 
+// Opening explanation: separate orbital motion, torque, and radial migration.
+const overviewCanvas = $("overviewCanvas");
+const overviewCtx = overviewCanvas.getContext("2d");
+const overviewState = { phase: 0, playing: true, t: 0, last: 0 };
+const overviewCaptions = [
+  "Primero: casi todo el movimiento es orbital. Girar no significa todavía caer hacia el centro.",
+  "La cizalla produce un intercambio: el anillo interior pierde j y el exterior lo recibe.",
+  "Después de perder j, parte de la masa migra hacia dentro; una fracción exterior se expande y carga el momento angular."
+];
+
+function drawOverview() {
+  const ctx = overviewCtx;
+  clear(ctx, overviewCanvas);
+  const cx = 460, cy = 235;
+  ctx.fillStyle = "rgba(36,108,134,.06)";
+  ctx.beginPath(); ctx.arc(cx, cy, 205, 0, Math.PI * 2); ctx.fill();
+  [95, 145, 195].forEach((r) => {
+    ctx.strokeStyle = "#cbd7d5"; ctx.lineWidth = 18;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+  });
+  ctx.fillStyle = "#172524"; ctx.beginPath(); ctx.arc(cx, cy, 28, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#f2b84b"; ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI * 2); ctx.fill();
+  const phase = overviewState.phase;
+  const angle = overviewState.t * .0012;
+  [95, 145, 195].forEach((r, i) => {
+    const a = angle * (1.8 - i * .35) - i;
+    ctx.fillStyle = "#394947"; ctx.beginPath(); ctx.arc(cx + r * Math.cos(a), cy + r * Math.sin(a), 7, 0, Math.PI * 2); ctx.fill();
+    drawCurvedArrow(ctx, cx, cy, r, -.9, -.15, "#394947", 3);
+  });
+  if (phase >= 1) {
+    drawCurvedArrow(ctx, cx, cy, 116, 2.7, 2.05, "#b98224", 6);
+    drawCurvedArrow(ctx, cx, cy, 173, 2.05, 2.7, "#b98224", 6);
+    arrow(ctx, cx + 118, cy - 18, cx + 184, cy - 28, "#246c86", 5);
+    ctx.fillStyle = "#1b2827"; ctx.font = "700 15px Inter, sans-serif";
+    ctx.fillText("pierde j", cx - 160, cy + 112); ctx.fillText("gana j", cx - 210, cy + 170);
+  }
+  if (phase >= 2) {
+    arrow(ctx, cx - 125, cy, cx - 57, cy, "#b94f3c", 6);
+    arrow(ctx, cx + 155, cy + 42, cx + 227, cy + 62, "#246c86", 6);
+    ctx.fillStyle = "#b94f3c"; ctx.fillText("masa", cx - 130, cy - 15);
+    ctx.fillStyle = "#246c86"; ctx.fillText("expansión exterior", cx + 165, cy + 92);
+  }
+  $("overviewCaption").textContent = overviewCaptions[phase];
+}
+
+document.querySelectorAll("[data-overview-phase]").forEach((button) => button.addEventListener("click", () => {
+  overviewState.phase = Number(button.dataset.overviewPhase);
+  document.querySelectorAll("[data-overview-phase]").forEach((b) => b.classList.toggle("active", b === button));
+  drawOverview();
+}));
+$("overviewPlay").addEventListener("click", () => {
+  overviewState.playing = !overviewState.playing;
+  $("overviewPlay").textContent = overviewState.playing ? "Pausar" : "Reproducir";
+});
+function overviewLoop(timestamp) {
+  if (overviewState.playing) {
+    overviewState.t += overviewState.last ? timestamp - overviewState.last : 0;
+    drawOverview();
+  }
+  overviewState.last = timestamp;
+  requestAnimationFrame(overviewLoop);
+}
+
 // Navier-Stokes term explorer
 const termData = {
   local: {
@@ -138,7 +201,7 @@ function updateRotationExplorer() {
   clear(ringCtx, ringCanvas);
   const cx = ringCanvas.width / 2;
   const cy = ringCanvas.height / 2 + 12;
-  const radii = [85, 145, 205];
+  const radii = [118, 190];
   ringCtx.strokeStyle = "#d6ddd8";
   ringCtx.lineWidth = 24;
   radii.forEach((r) => {
@@ -149,18 +212,22 @@ function updateRotationExplorer() {
   radii.forEach((r, i) => {
     const localOmega = Math.pow(r / radii[1], -q);
     const span = Math.min(2.25, .58 + .48 * localOmega);
-    drawCurvedArrow(ringCtx, cx, cy, r, -1.9, -1.9 + span, i === 0 ? "#b94f3c" : i === 2 ? "#246c86" : "#b98224", 6);
+    drawCurvedArrow(ringCtx, cx, cy, r, -1.9, -1.9 + span, "#394947", 5);
   });
   ringCtx.fillStyle = "#1b2827";
   ringCtx.font = "700 16px Inter, sans-serif";
-  ringCtx.fillText("interior", cx - 48, cy - 52);
-  ringCtx.fillText("exterior", cx - 52, cy - 222);
+  ringCtx.fillText("anillo interior", cx - 58, cy - 76);
+  ringCtx.fillText("anillo exterior", cx - 62, cy - 208);
   ringCtx.font = "14px Inter, sans-serif";
   ringCtx.fillStyle = "#60706c";
   ringCtx.fillText(`Ω ∝ R^${(-q).toFixed(2)}`, 28, 35);
   ringCtx.fillText(Math.abs(q) < .001 ? "sin transferencia viscosa" : q > 0 ? "transporte de j hacia fuera" : "transporte de j hacia dentro", 28, 60);
   if (Math.abs(q) > .001) {
-    arrow(ringCtx, cx + 240, cy, cx + 310, cy, q > 0 ? "#246c86" : "#b94f3c", 5);
+    drawCurvedArrow(ringCtx, cx, cy, 140, 2.8, 2.25, "#b98224", 7);
+    drawCurvedArrow(ringCtx, cx, cy, 168, 2.25, 2.8, "#b98224", 7);
+    arrow(ringCtx, q > 0 ? cx + 125 : cx + 220, cy + 18, q > 0 ? cx + 220 : cx + 125, cy + 18, q > 0 ? "#246c86" : "#b94f3c", 5);
+    ringCtx.fillStyle = "#60706c"; ringCtx.font = "700 13px Inter, sans-serif";
+    ringCtx.fillText(q > 0 ? "j hacia fuera" : "j hacia dentro", cx + 130, cy + 48);
   }
 }
 
@@ -178,43 +245,43 @@ function drawBalance() {
   const imbalance = Number(imbalanceControl.value);
   $("imbalanceValue").textContent = `${imbalance >= 0 ? "+" : ""}${imbalance.toFixed(2)}`;
   clear(balanceCtx, balanceCanvas);
-  const cx = balanceCanvas.width / 2;
-  const cy = balanceCanvas.height / 2 + 8;
-  const inner = 145;
-  const outer = 240;
+  const cx = balanceCanvas.width / 2, cy = balanceCanvas.height / 2 + 8;
+  const left = 350, right = 750, top = 105, bottom = 335;
   balanceCtx.fillStyle = kind === "mass" ? "rgba(36,108,134,.14)" : "rgba(185,130,36,.17)";
   balanceCtx.strokeStyle = kind === "mass" ? "#246c86" : "#b98224";
   balanceCtx.lineWidth = 3;
-  balanceCtx.beginPath();
-  balanceCtx.arc(cx, cy, outer, 0, Math.PI * 2);
-  balanceCtx.arc(cx, cy, inner, 0, Math.PI * 2, true);
-  balanceCtx.fill("evenodd");
-  balanceCtx.stroke();
+  balanceCtx.fillRect(left, top, right - left, bottom - top);
+  balanceCtx.strokeRect(left, top, right - left, bottom - top);
+  balanceCtx.setLineDash([7, 5]); balanceCtx.strokeStyle = "#60706c";
+  [left, right].forEach((x) => { balanceCtx.beginPath(); balanceCtx.moveTo(x, 65); balanceCtx.lineTo(x, 375); balanceCtx.stroke(); });
+  balanceCtx.setLineDash([]);
 
   const leftStrength = 90;
   const rightStrength = Math.max(20, leftStrength * (1 + imbalance));
   if (kind === "mass") {
-    arrow(balanceCtx, cx - outer - 145, cy, cx - outer + 5, cy, "#246c86", 7);
-    arrow(balanceCtx, cx + outer - 5, cy, cx + outer + 55 + rightStrength, cy, "#b94f3c", 7);
+    arrow(balanceCtx, left - 170, cy, left, cy, "#246c86", 7);
+    arrow(balanceCtx, right, cy, right + 80 + rightStrength, cy, "#246c86", 7);
     balanceCtx.fillStyle = "#1b2827";
     balanceCtx.font = "700 17px Inter, sans-serif";
-    balanceCtx.fillText("Fₘ(R)", cx - outer - 145, cy - 18);
-    balanceCtx.fillText("Fₘ(R+dR)", cx + outer + 16, cy - 18);
+    balanceCtx.fillText("entrada: Fₘ(R)", left - 170, cy - 18);
+    balanceCtx.fillText("salida: Fₘ(R+dR)", right + 14, cy - 18);
   } else {
-    drawCurvedArrow(balanceCtx, cx, cy, inner - 18, -2.4, -1.25, "#b94f3c", 7);
-    drawCurvedArrow(balanceCtx, cx, cy, outer + 20, -.3, -.3 + 1.15 + imbalance * .55, "#246c86", 7);
+    arrow(balanceCtx, left - 170, cy, left, cy, "#394947", 5);
+    arrow(balanceCtx, right, cy, right + 130, cy, "#394947", 5);
+    arrow(balanceCtx, left, top - 25, left + 80, top - 25, "#b98224", 7);
+    arrow(balanceCtx, right + 80 + imbalance * 55, top - 25, right, top - 25, "#b98224", 7);
     balanceCtx.fillStyle = "#1b2827";
     balanceCtx.font = "700 17px Inter, sans-serif";
-    balanceCtx.fillText("G(R)", cx - 205, cy - 145);
-    balanceCtx.fillText("G(R+dR)", cx + 135, cy - 210);
+    balanceCtx.fillText("G(R)", left + 8, top - 42);
+    balanceCtx.fillText("G(R+dR)", right - 98, top - 42);
   }
   balanceCtx.fillStyle = "#1b2827";
   balanceCtx.font = "700 18px Inter, sans-serif";
   balanceCtx.fillText(kind === "mass" ? "masa almacenada: 2πRΣ dR" : "momento almacenado: 2πRΣj dR", cx - 175, cy + 8);
   balanceCtx.font = "14px Inter, sans-serif";
   balanceCtx.fillStyle = "#60706c";
-  balanceCtx.fillText("R", cx - inner - 10, cy + 27);
-  balanceCtx.fillText("R+dR", cx + outer - 28, cy + 27);
+  balanceCtx.fillText("frontera R", left - 35, bottom + 28);
+  balanceCtx.fillText("frontera R+dR", right - 48, bottom + 28);
 
   const equal = Math.abs(imbalance) < .001;
   const quantity = kind === "mass" ? "masa" : "momento angular";
@@ -359,7 +426,10 @@ function drawSignedPlot(canvasId, values, color, label) {
   clear(ctx, canvas);
   const box = axes(ctx, canvas, "R", label, .5);
   const maxAbs = Math.max(1e-8, ...values.map((v) => Math.abs(v)));
-  plotCurve(ctx, box, values, -maxAbs * 1.1, maxAbs * 1.1, color, 3.5);
+  if (canvasId === "velocityCanvas") {
+    plotCurve(ctx, box, values.map((v) => v < 0 ? v : NaN), -maxAbs * 1.1, maxAbs * 1.1, "#b94f3c", 3.5);
+    plotCurve(ctx, box, values.map((v) => v > 0 ? v : NaN), -maxAbs * 1.1, maxAbs * 1.1, "#246c86", 3.5);
+  } else plotCurve(ctx, box, values, -maxAbs * 1.1, maxAbs * 1.1, color, 3.5);
 }
 
 function diskColor(t) {
@@ -398,6 +468,12 @@ function drawDisk() {
   ctx.fillStyle = "#60706c";
   ctx.font = "14px Inter, sans-serif";
   ctx.fillText(`t = ${sim.time.toFixed(3)}`, 20, 28);
+  const peak = Math.max(...sim.sigma);
+  for (let i = 8; i < sim.n - 8; i += Math.floor(sim.n / 7)) {
+    if (sim.sigma[i] < .18 * peak || Math.abs(sim.ur[i]) < 1e-6) continue;
+    const r = sim.r[i] * scale, inward = sim.ur[i] < 0;
+    arrow(ctx, cx + r, cy, cx + r + (inward ? -24 : 24), cy, inward ? "#b94f3c" : "#246c86", 4);
+  }
 }
 
 function drawSimulation() {
@@ -453,5 +529,7 @@ $("resetSimulation").addEventListener("click", initializeSimulation);
 
 updateRotationExplorer();
 drawBalance();
+drawOverview();
+requestAnimationFrame(overviewLoop);
 initializeSimulation();
 requestAnimationFrame(animationLoop);
